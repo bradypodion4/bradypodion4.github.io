@@ -1,9 +1,18 @@
+
 body {
     font-family: 'Poppins', sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
     color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+
+main {
+    flex: 1;
 }
 
 header {
@@ -15,6 +24,7 @@ header {
     align-items: center;
 }
 
+
 .nav-container {
     display: flex;
     align-items: center;
@@ -24,6 +34,7 @@ header {
     font-size: 24px;
     cursor: pointer;
     margin-right: 15px;
+    display: none;
 }
 
 .navbar ul {
@@ -42,12 +53,14 @@ header {
     font-weight: bold;
 }
 
+
 .hero {
     text-align: center;
     padding: 50px 20px;
     background: #4CAF50;
     color: white;
 }
+
 
 .about, .projects {
     padding: 40px 20px;
@@ -59,6 +72,7 @@ header {
     margin-bottom: 20px;
 }
 
+
 .projects .project-card {
     background: #e0e0e0;
     padding: 15px;
@@ -66,11 +80,13 @@ header {
     border-radius: 5px;
 }
 
+
 footer {
     text-align: center;
     padding: 20px;
     background: #222;
     color: white;
+    margin-top: auto;
 }
 
 .modal {
@@ -96,4 +112,15 @@ footer {
     background: none;
     font-size: 24px;
     cursor: pointer;
+}
+
+/* ----- RESPONSIVE DESIGN ----- */
+@media (max-width: 768px) {
+    .hamburger {
+        display: block;
+    }
+
+    .navbar {
+        display: none;
+    }
 }
