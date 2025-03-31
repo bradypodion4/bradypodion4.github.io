@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+        <meta property="og:title" content="Contact Me" />
+    <meta property="og:description" content="Contact Me" />
+    <meta property="og:type" content="website" />
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <title>Contact Me - Bradypodion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="hamburger" onclick="openModal()">
+            &#9776;
+        </div>
+
+        <nav class="navabar">
+            <ul class="nav-links">
+                <li><a href="/index.html">Home</a></li>
+                <li><a href="/contacts.html">Contact Me</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>Contact Me</h1>
+
+    </section>
+
+    <section class="contact-form">
+        <div class="title">Get in Touch</div>
+        <label for="name"></label>
+        <input id="name" class="input-form" placeholder="Your Name" type="text" required>
+
+        <label for="email"></label>
+        <input id="email" class="input-form" placeholder="Your Email" type="email" required>
+
+        <label for="message"></label>
+        <textarea id="message" class="textarea" rows="6" placeholder="Message" required></textarea>
+
+        <a id="sendEmail" class="button-confirm" href="#">Submit →</a>
+    </section>
+
+    <div id="hamburgerModal" class="modal">
+        <div class="modal-content">
+            <button type="button" class="hamburger-close-btn" onclick="closeModal()">×</button>
+            <ul class="nav-links">
+                <li><a href="/index.html">Home</a></li>
+                <li><a href="/contacts.html">Contact Me</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        &copy; Casetti Cristiano Carlo | P. IVA 17221481009
+    </footer>
+<script src="modal.js"></script>
+<script>
+    document.getElementById("sendEmail").addEventListener("click", function(event) {
+    event.preventDefault();
+
+    var name = encodeURIComponent(document.getElementById("name").value);
+    var email = encodeURIComponent(document.getElementById("email").value);
+    var message = encodeURIComponent(document.getElementById("message").value);
+
+    if (!name || !email || !message) {
+    alert("Please fill in all fields before sending.");
+    return;
+}
+
+    var subject = "Contact Request from " + name;
+    var body = "Hello Cristiano,\n\n" + message + "\n\nFrom: " + name + " (" + email + ")";
+
+    window.location.href = "mailto:tuo@email.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+});
+</script>
+</body>
+</html>
