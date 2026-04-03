@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://api.ipify.org https://bradypodion4.github.io; img-src 'self' data:; frame-ancestors 'none';">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Bradypodion</title>
+  <meta name="description" content="Cristiano Casetti - Bradypodion. Backend Software Engineer, I write, break code, then reiterate!">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Bradypodion | Backend Software Engineer">
+  <meta property="og:description" content="Backend Software Engineer since 1995. Interactive Unix terminal portfolio.">
+  <meta property="og:url" content="https://bradypodion4.github.io/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link" style="position:absolute;left:-9999px;top:0;z-index:9999;padding:0.5em 1em;background:#00ff41;color:#000;font-weight:bold;text-decoration:none;" onfocus="this.style.left='0'" onblur="this.style.left='-9999px'">Skip to main content</a>
+
+  <!-- Cookie Notice -->
+  <div id="cookie-overlay" class="cookie-overlay" role="dialog" aria-modal="true" aria-label="Cookie consent" style="display:none;">
+    <div class="cookie-box">
+      <div class="cookie-border">+--------------------------------------------------+</div>
+      <div class="cookie-title">|          COOKIE NOTICE - bradypodion4             |</div>
+      <div class="cookie-border">+--------------------------------------------------+</div>
+      <div class="cookie-text">
+        This site uses cookies to enhance your experience.<br>
+        We store minimal data for site functionality.
+      </div>
+      <div class="cookie-commands">
+        <div class="text-bright"> Available commands:</div>
+        <div>    <span class="text-accent">accept</span>   - Accept all cookies</div>
+        <div>    <span class="text-accent">decline</span>  - Decline optional cookies</div>
+        <div>    <span class="text-accent">manage</span>   - View cookie details</div>
+      </div>
+      <div class="cookie-docs text-dim">
+        Docs: /cookie-policy  /privacy-policy
+      </div>
+      <div id="cookie-manage-output"></div>
+      <div class="cookie-input-line">
+        <span class="cookie-prompt">cookie@pumilum&gt; </span>
+        <input type="text" id="cookie-input" class="cookie-input" autofocus autocomplete="off" spellcheck="false" maxlength="50">
+      </div>
+    </div>
+  </div>
+
+  <div id="terminal" class="terminal" id="main-content" lang="en">
+    <div id="output" class="terminal-output" aria-live="polite" aria-atomic="false" role="log"></div>
+    <div id="input-line" class="input-line" style="display:none;">
+      <span class="prompt">[bradypodion@pumilum ~]$ </span>
+      <input type="text" id="cmd-input" class="cmd-input" aria-label="Terminal command input" autofocus autocomplete="off" spellcheck="false" maxlength="500">
+    </div>
+  </div>
+
+  <script>
+    const output = document.getElementById('output');
+    const inputLine = document.getElementById('input-line');
+    const cmdInput = document.getElementById('cmd-input');
+    let commandHistory = [];
+    let historyIndex = -1;
+    let cwd = '/home/bradypodion';
+
+    /* ============================================
+       FILESYSTEM
+       ============================================ */
+    const filesystem = {
+      '/home/bradypodion': {
+        type: 'dir',
+        children: ['about.txt', 'skills.sh', 'scan.sh', 'infra_probe.py', 'projects/', 'blog/', '.bashrc', '.ssh/', '.config/', '/var/log/']
+      },
+      '/home/bradypodion/about.txt': {
+        type: 'file',
+        content: [
+          '# About Me',
+          '',
+          'Name:      Cristiano Casetti',
+          'Alias:     bradypodion',
+          'Role:      Backend Software Engineer',
+          'Born:      1995, Italy',
+          'Status:    Unknown',
+          '',
+          'I write, break code, then reiterate',
+          '',
+          'Wondering why error logs never converge to zero',
+          '',
+          '"In 1995, a Chameleon was born, known as Bradypodion4.',
+          ' If you want to build a software',
+          ' but don\'t know who to refer to, if you can see me, you can hire me."',
+        ]
+      },
+      '/home/bradypodion/skills.sh': {
+        type: 'file',
+        content: [
+          '#!/bin/bash',
+          '# skills.sh — Technical skill manifest',
+          '',
+          'echo "=== SYSTEMS ENGINEERING ==="',
+          'echo "  Designing scalable backend systems and APIs"',
+          'echo "  Distributed architectures and event-driven systems"',
+          'echo "  Integrate products into other products, I can do this recursively!"',
+          'echo ""',
+          'echo "=== CLOUD & INFRASTRUCTURE==="',
+          'echo "  AWS (EC2, S3, IAM, CLOUDFORMATION, API GATEWAY, LAMBDA and others...) — deploying and managing services"',
+          'echo "  Docker - containerization and service isolation"',
+          'echo "  QEMU — virtualization and system emulation"',
+          'echo "  Managing Linux servers, networking, and system services"',
+          'echo ""',
+          'echo "=== CODE ==="',
+          'echo "  Python — backend, automation, tooling, scraping"',
+          'echo "  Golang — backend, when high concurrency CPU bound is needed."',
+          'echo "  Rust   — eBPF."',
+          'echo ""',
+          'echo "=== LANGUAGES ==="',
+          'echo "  Python, Golang, Rust, JavaScript, HTML, Bash, CSS"',
+        ]
+      },
+      '/home/bradypodion/scan.sh': {
+        type: 'file',
+        content: [
+          '#!/bin/bash',
+          '# scan.sh — Visitor scanner',
+          '',
+          'echo "incoming connection detected..."',
+          'echo ""',
+          'echo "scanning visitor..."',
+          'echo ""',
+          'echo " ┌─────────────────────────────────────────────┐"',
+          'echo " │            VISITOR DATA                     │"',
+          'echo " └─────────────────────────────────────────────┘"',
+          'echo ""',
+          'echo "  IP:         $VISITOR_IP"',
+          'echo "  OS:         $VISITOR_OS"',
+          'echo "  Browser:    $VISITOR_BROWSER"',
+          'echo "  Screen:     $VISITOR_SCREEN"',
+          'echo "  Cores:      $VISITOR_CORES"',
+          'echo "  Language:   $VISITOR_LANG"',
+          'echo "  Timezone:   $VISITOR_TZ"',
+          'echo "  Device:     $VISITOR_DEVICE"',
+          'echo "  Connection: $VISITOR_CONN"',
+          'echo ""',
+          'echo "visitor authenticated. access granted."',
+        ]
+      },
+      '/home/bradypodion/infra_probe.py': {
+        type: 'file',
+        content: [
+          '#!/usr/bin/env python3',
+          '# infra_probe.py — Infrastructure analysis tool',
+          '',
+          'import os, time, socket',
+          '',
+          'TARGET = os.getenv("TARGET", "localhost")',
+          '',
+          'def probe(target):',
+          '    print(f"[*] Probing infrastructure: {target}")',
+          '    time.sleep(0.5)',
+          '',
+          '    print("[*] Checking network latency... OK")',
+          '    print("[*] Inspecting open ports... OK")',
+          '    print("[*] Analyzing service health... OK")',
+          '    print("[*] Evaluating system load...")',
+          '',
+          '    load = os.getloadavg()[0]',
+          '    print(f"[*] Current load: {load:.2f}")',
+          '',
+          '    if load > 2.0:',
+          '        print("[!] High load detected: system under pressure")',
+          '    else:',
+          '        print("[*] System stable")',
+          '',
+          '    print("[*] Analysis complete")',
+          '    print("[>] Tip: systems don’t break — they degrade under load.")',
+          '',
+          'if __name__ == "__main__":',
+          '    probe(TARGET)',
+        ]
+      },
+      '/home/bradypodion/.ssh/': {
+        type: 'dir',
+        children: ['authorized_keys', 'known_hosts']
+      },
+      '/home/bradypodion/.ssh/authorized_keys': {
+        type: 'file',
+        content: ['ssh-ed25519 AAAAC3... bradypodion@lab']
+      },
+      '/home/bradypodion/.ssh/known_hosts': {
+        type: 'file',
+        content: ['github.com ssh-ed25519 AAAAC3...', 'aws.ec2.internal ssh-rsa AAAAB3...']
+      },
+      '/var/log/system.log': {
+        type: 'file',
+        content: [
+          '[INFO] system boot completed',
+          '[INFO] docker service started',
+          '[WARN] high load detected on cpu0',
+          '[INFO] system stabilized'
+        ]
+      },
+      '/home/bradypodion/.config/': {
+        type: 'dir',
+        children: ['docker/', 'systemd/', 'aws/']
+      },
+      '/home/bradypodion/.config/docker/': {
+        type: 'dir',
+        children: ['daemon.json']
+      },
+      '/home/bradypodion/.config/docker/daemon.json': {
+        type: 'file',
+        content: [
+          '{',
+          '  "log-driver": "json-file",',
+          '  "storage-driver": "overlay2"',
+          '}'
+        ]
+      },
+      '/home/bradypodion/projects/': {
+        type: 'dir',
+        children: [
+          'scraping-pipeline/',
+          'tg-notify/',
+          'sys-rtl-monitor/',
+          'kafka-streams/',
+          'eBPF-Network-filter/'
+        ]
+      },
+      '/home/bradypodion/projects/scraping-pipeline/README.md': {
+        type: 'file',
+        content: [
+          '# Scraping pipeline',
+          '',
+          'High-throughput scraping pipeline using Kafka.',
+          'Handles streaming ingestion, processing and aggregating data at scale.',
+          '',
+          'Tech: Python, Kafka, Docker',
+        ]
+      },
+      '/home/bradypodion/projects/tg-notify/README.md': {
+        type: 'file',
+        content: [
+          '# TG-Notify',
+          '',
+          'Telegram bot for real-time anomaly notifications and alerts.',
+          'Integrates with system metrics and network monitoring to push critical messages.',
+          '',
+          'Tech: Python, Telegram API, Linux, RaspberryPi, system monitoring'
+        ]
+      },
+      '/home/bradypodion/projects/sys-rtl-monitor/README.md': {
+        type: 'file',
+        content: [
+          '# Sys-RTL-Monitor',
+          '',
+          'Resource and node monitoring system for servers and distributed infrastructures.',
+          'Tracks CPU, memory, network, disk usage, and alerts on threshold breaches.',
+          '',
+          'Tech: Python, Linux, Grafana, Prometheus'
+        ]
+      },
+
+      '/home/bradypodion/projects/eBPF-Network-filter/README.md': {
+        type: 'file',
+        content: [
+          '# eBPF Network Filter',
+          '',
+          'High-performance packet filtering using eBPF programs.',
+          'Filters and monitors network traffic at the kernel level with minimal overhead.',
+          '',
+          'Tech: Rust, eBPF, Linux kernel networking, TCP/IP'
+        ]
+      },
+    };
+
+    /* ============================================
+       HELPERS
+       ============================================ */
+    function getLastLogin() {
+      const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const d = new Date(); d.setDate(d.getDate() - 1);
+      return days[d.getDay()] + ' ' + months[d.getMonth()] + ' ' + d.getDate().toString().padStart(2,' ') + ' ' +
+             d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0') + ':' +
+             d.getSeconds().toString().padStart(2,'0') + ' on tty0';
+    }
+
+    function addLine(text, cls) {
+      const el = document.createElement('div');
+      el.className = 'terminal-line' + (cls ? ' ' + cls : '');
+      el.textContent = text;
+      output.appendChild(el);
+    }
+
+    function addHTML(html, cls) {
+      const el = document.createElement('div');
+      el.className = 'terminal-line' + (cls ? ' ' + cls : '');
+      el.innerHTML = html;
+      output.appendChild(el);
+    }
+
+    function addAsciiLine(text) {
+      const el = document.createElement('div');
+      el.className = 'terminal-line terminal-ascii';
+      el.textContent = text;
+      output.appendChild(el);
+    }
+
+    function scrollToBottom() { window.scrollTo(0, document.body.scrollHeight); }
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+    function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+    function escapeRegex(str) { return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+    function resolvePath(path) {
+      if (!path) return cwd;
+      if (path === '~') return '/home/bradypodion';
+      if (path.startsWith('~/')) return '/home/bradypodion/' + path.slice(2);
+      if (path.startsWith('/')) return path;
+      let base = cwd.endsWith('/') ? cwd : cwd + '/';
+      let parts = (base + path).split('/').filter(p => p !== '' && p !== '.');
+      let stack = [];
+      for (const p of parts) { if (p === '..') stack.pop(); else stack.push(p); }
+      return '/' + stack.join('/');
+    }
+
+    function getDisplayCwd() {
+      if (cwd === '/home/bradypodion') return '~';
+      if (cwd.startsWith('/home/bradypodion/')) return '~/' + cwd.slice('/home/bradypodion/'.length);
+      return cwd;
+    }
+
+    function updatePrompt() {
+      document.querySelector('.prompt').textContent = '[bradypodion@pumilum ' + getDisplayCwd() + ']$ ';
+    }
+
+    function linkify(text) {
+      return escapeHtml(text).replace(/(https?:\/\/[^\s<>"]+)/g, function(match) { var safe = match.replace(/[<>"'&]/g, function(c) { return {'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;'}[c]; }); return '<a href="' + safe + '" class="terminal-link" target="_blank" rel="noopener noreferrer">' + safe + '</a>'; });
+    }
+
+    /* ============================================
+       BOOT SEQUENCE
+       ============================================ */
+    const bootLines = [
+      { t: '', d: 200 },
+      { t: 'BIOS Bradypodion Systems v1.76', c: 'text-bright' },
+      { t: 'Copyright (C) 1995-2026 Pumilum', c: 'text-dim' },
+      { t: '' },
+      { t: 'avail mem = 65011712' },
+      { t: '' },
+      { t: 'SCSI: no adapters found' },
+      { t: 'wd0 at isa0 port 0x1f0-0x1f7 irq 14: ST32140A, 2111MB, 4095 cyl, 16 head, 63 sec' },
+      { t: 'wd0a: <4.2BSD> 1024MB' },
+      { t: 'zram0: <swap> 524288' },
+      { t: '' },
+      { t: 'ne0 at isa0 port 0x300 irq 10: address 00:DE:AD:BE:EF:76' },
+      { t: 'vga0 at isa0 port 0x3c0-0x3df: Cirrus Logic CL-GD5428' },
+      { t: '' },
+      { t: 'INIT: version 1 booting', c: 'text-bright' },
+      { t: '' },
+      { t: 'The system is coming up.  Please wait.', c: 'text-bright' },
+      { t: '', d: 300 },
+      { t: 'checking ufs filesystems' },
+      { t: '/dev/wd-0: 12418 files, 198632 used, 42665034 free (1024 frags, 7735 blocks, 0.4% f' },
+      { t: '' },
+      { t: 'starting system logger:  syslogd' },
+      { t: 'starting kernel log daemon:  klogd' },
+      { t: 'starting intrusion detection:  snort' },
+      { t: 'starting cron daemon:  cron' },
+      { t: 'starting print spooler:  lpd' },
+      { t: '' },
+      { t: 'configuring network interfaces:' },
+      { t: '    lo0: flags=8049<UP,LOOPBACK,RUNNING,MULTICAST> mtu 32768' },
+      { t: '         inet 127.0.0.1 netmask 0xff000000' },
+      { t: '    ne0: flags=8843<UP,BROADCAST,RUNNING,SIMPLEX,MULTICAST> mtu 1500' },
+      { t: '         inet 10.0.0.1 netmask 0xffffff00 broadcast 10.0.0.255' },
+      { t: '' },
+      { t: 'starting network daemons:  portmap mountd nfsd nfsiod' },
+      { t: 'starting sshd:  sshd' },
+      { t: '' },
+      { t: 'starting bradypodion-api:  [4822]' },
+      { t: '', d: 400 },
+      { t: 'Bradypodion Darwin System V Release 6.5.0-44 (pumilum)', c: 'text-bright' },
+      { t: '' },
+      { t: 'login: bradypodion', c: 'text-bright' },
+      { t: 'Password: ********', c: 'text-bright' },
+      { t: '' },
+      { t: 'Last login: ' + getLastLogin(), c: 'text-bright' },
+      { t: '', d: 500 },
+    ];
+
+    const asciiArt = [
+      '██████╗░██████╗░░█████╗░██████╗░██╗░░░██╗██████╗░░█████╗░██████╗░██╗░█████╗░███╗░░██╗',
+      '██╔══██╗██╔══██╗██╔══██╗██╔══██╗╚██╗░██╔╝██╔══██╗██╔══██╗██╔══██╗██║██╔══██╗████╗░██║',
+      '██████╦╝██████╔╝███████║██║░░██║░╚████╔╝░██████╔╝██║░░██║██║░░██║██║██║░░██║██╔██╗██║',
+      '██╔══██╗██╔══██╗██╔══██║██║░░██║░░╚██╔╝░░██╔═══╝░██║░░██║██║░░██║██║██║░░██║██║╚████║',
+      '██████╦╝██║░░██║██║░░██║██████╔╝░░░██║░░░██║░░░░░╚█████╔╝██████╔╝██║╚█████╔╝██║░╚███║',
+    ];
+
+    /* ---- Visitor detection ---- */
+    function detectOS() {
+      const ua = navigator.userAgent;
+      if (ua.includes('Windows NT 10')) return 'Windows 10/11';
+      if (ua.includes('Windows')) return 'Windows';
+      if (ua.includes('Mac OS X')) {
+        const v = ua.match(/Mac OS X (\d+[._]\d+)/);
+        return 'macOS' + (v ? ' ' + v[1].replace('_','.') : '');
+      }
+      if (ua.includes('Android')) return 'Android';
+      if (ua.includes('iPhone') || ua.includes('iPad')) return 'iOS';
+      if (ua.includes('Linux')) return 'Linux';
+      return 'Unknown OS';
+    }
+
+    function detectBrowser() {
+      const ua = navigator.userAgent;
+      if (ua.includes('Firefox/')) return 'Firefox ' + (ua.match(/Firefox\/(\d+)/)||[])[1];
+      if (ua.includes('Edg/')) return 'Edge ' + (ua.match(/Edg\/(\d+)/)||[])[1];
+      if (ua.includes('Chrome/')) return 'Chrome ' + (ua.match(/Chrome\/(\d+)/)||[])[1];
+      if (ua.includes('Safari/') && !ua.includes('Chrome')) return 'Safari ' + (ua.match(/Version\/(\d+)/)||[])[1];
+      return 'Unknown Browser';
+    }
+
+    async function getVisitorIP() {
+      try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        const data = await res.json();
+        return data.ip;
+      } catch { return '?.?.?.?'; }
+    }
+
+    async function runBootSequence() {
+      for (const l of bootLines) { addLine(l.t, l.c); await sleep(l.d || 35); }
+
+      addLine('');
+      for (const a of asciiArt) addAsciiLine(a);
+      await sleep(150);
+      addLine('');
+      addLine(' Bradypodion Darwin System V Release 6.5.0-44 (tty0)', 'text-dim');
+      addLine(' Last login: ' + getLastLogin(), 'text-dim');
+      addLine('');
+      addLine(' Backend Software Engineer', 'text-bright');
+      addLine('I write code that does things', 'text-bright');
+      addLine('The stack and technologies changes; the logic remains.', 'text-bright');
+      addLine('');
+      addLine(" Type 'help' for available commands.", 'text-dim');
+      addLine('');
+      inputLine.style.display = 'flex';
+      cmdInput.focus();
+      scrollToBottom();
+    }
+
+    /* ============================================
+       COMMAND ROUTER
+       ============================================ */
+    function runCommand(raw) {
+      // Secondary server-side length guard (in case maxlength attribute is bypassed)
+      if (raw.length > 500) { addLine('sh: command line too long (max 500 chars)'); scrollToBottom(); return; }
+      const trimmed = raw.trim();
+      const parts = trimmed.split(/\s+/);
+      const cmd = parts[0];
+      const args = parts.slice(1);
+
+      addHTML('<span class="prompt-echo">[bradypodion@pumilum ' + escapeHtml(getDisplayCwd()) + ']$ </span>' + escapeHtml(raw));
+      if (!trimmed) { scrollToBottom(); return; }
+
+      const handlers = {
+        help: cmdHelp, ls: cmdLs, cd: cmdCd, pwd: cmdPwd, cat: cmdCat, bat: cmdBat,
+        head: cmdHead, tail: cmdTail, stat: cmdStat, find: cmdFind,
+        grep: cmdGrep, wc: cmdWc, echo: cmdEcho, which: cmdWhich,
+        file: cmdFile, df: cmdDf, du: cmdDu, ps: cmdPs, gotop: cmdGoTop,
+        ping: cmdPing, netstat: cmdNetstat, ifconfig: cmdIfconfig,
+        vim: cmdVim, sh: cmdSh, mail: cmdMail, ssh: cmdSsh,
+        man: cmdMan, uname: cmdUname, env: cmdEnv, whoami: cmdWhoami,
+        id: cmdId, hostname: cmdHostname, date: cmdDate, cal: cmdCal,
+        clear: cmdClear, history: cmdHistory, uptime: cmdUptime,
+        free: cmdFree, lscpu: cmdLscpu, exit: cmdExit,
+        hexdump: cmdHexdump, crontab: cmdCrontab,
+        traceroute: cmdTraceroute, docker: cmdDocker, systemctl:cmdSystemctl,
+        kafka: cmdKafka
+      };
+
+      if (trimmed.match(/^(sudo\s+)?rm\s+.*-rf|^(sudo\s+)?rm\s+-rf/)) { cmdRmRf(); }
+      else if (handlers[cmd]) { handlers[cmd](args); }
+      else if (cmd === 'bash') { cmdSh(args); }
+      else if (cmd.startsWith('./')) { cmdSh([cmd.slice(2), ...args]); }
+      else if (['mkdir','rmdir','rm','cp','mv','ln','chmod','chown','touch'].includes(cmd)) { addLine(cmd + ': permission denied'); }
+      else if (cmd === 'sudo') { addLine('bradypodion is not in the sudoers file. This incident will be reported.'); }
+      else if (cmd === 'su') { addLine('su: Authentication failure'); }
+      else if (['wget','curl'].includes(cmd)) { addLine(cmd + ': network requests disabled in web terminal'); }
+      else if (['vi','nano','emacs'].includes(cmd)) { addLine(cmd + ': not available, use vim'); }
+      else if (['python','python3'].includes(cmd)) {
+        if (args.length && args[0] === 'infra_probe.py') { cmdInfraProbe(); }
+        else { addLine('Python 3.14.3 (pumilum)'); addLine('>>> Dude... It\'s not a real interpreter'); }
+      }
+      else if (cmd === 'node') { addLine('node: not installed (this is a branch, i\'m feeling good here.)'); }
+      else if (['apt','yum','pacman','brew'].includes(cmd)) { addLine(cmd + ': permission denied'); }
+      else if (['reboot','shutdown','poweroff','halt'].includes(cmd)) { addLine(cmd + ': permission denied (only the master Chameleon can do that)'); }
+      else if (cmd === 'sort') { addLine('sort: missing operand'); }
+      else if (trimmed.includes(':(){ :|:& };:') || trimmed.includes(':(){ :|:&};:')) { addLine(''); addLine('Fork bomb detected. You know your stuff.', 'text-accent'); addLine('But this branch has cgroups. It\'s like you run a forkbomb into a docker container. Nice try,', 'text-dim'); addLine(''); }
+      else { addLine(' sh: command not found: ' + cmd); }
+      scrollToBottom();
+    }
+
+    /* ============================================
+       COMMAND IMPLEMENTATIONS
+       ============================================ */
+    function cmdHelp() {
+      addLine('');
+      addLine(' Available commands (Bradypodion Darwin SVR4):', 'text-bright');
+
+      const pad = 24;
+      const sections = [
+        ['FILES & NAVIGATION', [
+          ['ls [-lah] [dir]',      'List directory contents'],
+          ['cd <dir>',             'Change directory'],
+          ['pwd',                  'Print working directory'],
+          ['cat <file>',           'Display file contents'],
+          ['bat <file>',           'Syntax-highlighted view'],
+          ['head/tail <file>',     'First/last lines'],
+          ['stat <file>',          'File status'],
+          ['find [path]',          'Search files'],
+          ['grep <pat> <file>',    'Search in files'],
+          ['wc <file>',            'Word/line count'],
+          ['vim <file>',          'Text editor'],
+          ['file <path>',          'Identify file type'],
+        ]],
+        ['SCRIPTS & EXECUTION', [
+          ['sh/bash <script>',     'Execute shell script'],
+          ['./<script>',           'Run script directly'],
+          ['python <script>',      'Run Python script'],
+        ]],
+        ['DEBUGGING/SECURITY', [
+          ['traceroute <host>',    'Trace packet route'],
+          ['tail -f',              'Live auth.log stream'],
+        ]],
+        ['SYSTEM', [
+          ['ps / gotop',                            'Processes / monitor'],
+          ['df / du',                               'Disk / directory usage'],
+          ['free',                                  'Memory usage'],
+          ['uname [-a]',                            'System info'],
+          ['env',                                   'Environment variables'],
+          ['crontab -l',                            'Scheduled jobs'],
+          ['lscpu',                                 'CPU info'],
+          ['uptime',                                'System uptime'],
+          ['systemctl [list-units|status|start|stop|restart]', 'Manage system services'],
+          ['docker [ps|images|start|stop]',         'Container management'],
+          ['kafka [consume|topics|describe]',       'Kafka topics & message streaming'],
+        ]],
+        ['NETWORK', [
+          ['ping <host>',          'Ping host'],
+          ['netstat',              'Network connections'],
+          ['ifconfig',             'Network interfaces'],
+          ['ssh github',           'Open GitHub profile'],
+          ['mail',                 'Contact info'],
+        ]],
+        ['OTHER', [
+          ['whoami',               'User info'],
+          ['id',                   'User identity'],
+          ['hostname',             'System hostname'],
+          ['date / cal',           'Date / calendar'],
+          ['man <cmd>',            'Manual page'],
+          ['which <cmd>',          'Locate command'],
+          ['echo <text>',          'Print text'],
+          ['history',              'Command history'],
+          ['clear',                'Clear terminal'],
+          ['help',                 'This help'],
+        ]],
+      ];
+
+      for (const [title, cmds] of sections) {
+        addLine('');
+        addHTML(' <span class="text-bright">── ' + title + ' ──</span>');
+        for (const [c, d] of cmds) {
+          addHTML('  <span class="text-accent">' + escapeHtml(c.padEnd(pad)) + '</span>' + escapeHtml(d));
+        }
+      }
+      addLine('');
+      addLine(" Tip: try 'docker ps', 'docker images', 'python3 infra_probe.py',  './scan.sh'", 'text-dim');
+      addLine("      'tail -f', 'systemctl list-units', 'traceroute github.com', 'rm -rf /'", 'text-dim');
+      addLine('');
+    }
+
+    function cmdLs(args) {
+      const long = args.some(a => ['-l','-la','-lah','-al','-lha'].includes(a));
+      const hidden = args.some(a => ['-a','-la','-lah','-al','-lha'].includes(a));
+      let target = cwd;
+      for (const a of args) { if (!a.startsWith('-')) { target = resolvePath(a); break; } }
+      let key = target;
+      if (!key.endsWith('/') && filesystem[key + '/']) key += '/';
+      const dir = filesystem[key] || filesystem[target];
+      if (!dir || dir.type !== 'dir') { addLine('ls: cannot access \'' + target + '\': No such file or directory'); return; }
+      let items = [...dir.children];
+      if (hidden) items = ['.', '..', ...items];
+      if (long) {
+        addLine('total ' + items.length * 4);
+        for (const item of items) {
+          const isDir = item.endsWith('/') || item === '.' || item === '..';
+          const p = isDir ? 'drwxr-xr-x' : '-rw-r--r--';
+          const s = isDir ? '4096' : (Math.floor(Math.random()*9000)+1000).toString();
+          addHTML(p + '  1 bradypodion bradypodion ' + s.padStart(5) + ' Mar 20 19:76 ' +
+            (isDir ? '<span class="text-accent">' + escapeHtml(item) + '</span>' : escapeHtml(item)));
+        }
+      } else {
+        let line = '';
+        for (const item of items) {
+          const isDir = item.endsWith('/') || item === '.' || item === '..';
+          line += isDir ? '<span class="text-accent">' + escapeHtml(item) + '</span>  ' : escapeHtml(item) + '  ';
+        }
+        addHTML(line);
+      }
+    }
+
+    function cmdCd(args) {
+      if (!args.length || args[0] === '~') { cwd = '/home/bradypodion'; updatePrompt(); return; }
+      let target = resolvePath(args[0]);
+      let key = target;
+      if (!key.endsWith('/') && filesystem[key + '/']) key += '/';
+      const dir = filesystem[key] || filesystem[target];
+      if (dir && dir.type === 'dir') { cwd = target.replace(/\/$/, '') || '/'; updatePrompt(); }
+      else addLine('cd: ' + args[0] + ': No such file or directory');
+    }
+
+    function cmdPwd() { addLine(cwd); }
+
+    function cmdCat(args) {
+      if (!args.length) { addLine('cat: missing operand'); return; }
+      const path = resolvePath(args[0]);
+      const f = filesystem[path];
+      if (!f) { addLine('cat: ' + args[0] + ': No such file or directory'); return; }
+      if (f.type === 'dir') { addLine('cat: ' + args[0] + ': Is a directory'); return; }
+      for (const line of f.content) { addHTML(linkify(line)); }
+    }
+
+    function cmdBat(args) {
+      if (!args.length) { addLine('bat: missing operand'); return; }
+      const path = resolvePath(args[0]);
+      const f = filesystem[path];
+      if (!f) { addLine('bat: ' + args[0] + ': No such file or directory'); return; }
+      if (f.type === 'dir') { addLine('bat: ' + args[0] + ': Is a directory'); return; }
+
+      const filename = args[0];
+      const lang = detectLang(filename);
+
+      // Build bat container
+      const container = document.createElement('div');
+      container.className = 'bat-container';
+
+      // Header
+      const header = document.createElement('div');
+      header.className = 'bat-header';
+      header.innerHTML = '<span class="bat-header-file">File: ' + escapeHtml(filename) + '</span><span class="bat-header-lang">' + escapeHtml(lang) + '</span>';
+      container.appendChild(header);
+
+      // Lines
+      for (let i = 0; i < f.content.length; i++) {
+        const lineEl = document.createElement('div');
+        lineEl.className = 'bat-line';
+
+        const gutter = document.createElement('span');
+        gutter.className = 'bat-gutter';
+        gutter.textContent = (i + 1).toString();
+
+        const content = document.createElement('span');
+        content.className = 'bat-content';
+        content.innerHTML = highlightSyntax(f.content[i], lang);
+
+        lineEl.appendChild(gutter);
+        lineEl.appendChild(content);
+        container.appendChild(lineEl);
+      }
+
+      output.appendChild(container);
+    }
+
+    function detectLang(filename) {
+      if (filename.endsWith('.sh')) return 'Bash';
+      if (filename.endsWith('.py')) return 'Python';
+      if (filename.endsWith('.js')) return 'JavaScript';
+      if (filename.endsWith('.rs')) return 'Rust';
+      if (filename.endsWith('.go')) return 'Golang';
+      if (filename.endsWith('.md')) return 'Markdown';
+      if (filename.endsWith('.html')) return 'HTML';
+      if (filename.endsWith('.txt')) return 'Plain Text';
+      if (filename.endsWith('.json')) return 'JSON';
+      if (filename === '.bashrc') return 'Bash';
+      return 'Plain Text';
+    }
+
+    function highlightSyntax(line, lang) {
+      let h = escapeHtml(line);
+
+      if (lang === 'Bash') {
+        // Comments
+        h = h.replace(/^(\s*)(#.*)$/, '$1<span class="syn-comment">$2</span>');
+        // Strings
+        h = h.replace(/(&#39;[^&#]*(?:&#39;)?|&quot;[^&]*(?:&quot;)?)/g, '<span class="syn-string">$1</span>');
+        // Keywords
+        h = h.replace(/\b(export|alias|echo|if|then|else|fi|for|do|done|while|case|esac|function|return|source)\b/g, '<span class="syn-keyword">$1</span>');
+        // Variables
+        h = h.replace(/(\$\w+|\$\{[^}]+\})/g, '<span class="syn-var">$1</span>');
+        // Flags
+        h = h.replace(/(\s)(--?\w[\w-]*)/g, '$1<span class="syn-flag">$2</span>');
+      } else if (lang === 'Python') {
+        h = h.replace(/^(\s*)(#.*)$/, '$1<span class="syn-comment">$2</span>');
+        h = h.replace(/(&#39;[^&#]*&#39;|&quot;[^&]*&quot;)/g, '<span class="syn-string">$1</span>');
+        h = h.replace(/\b(def|class|import|from|return|if|elif|else|for|while|try|except|with|as|yield|lambda|pass|raise|True|False|None|self|print)\b/g, '<span class="syn-keyword">$1</span>');
+        h = h.replace(/\b(\d+\.?\d*)\b/g, '<span class="syn-number">$1</span>');
+      } else if (lang === 'Markdown') {
+        // Headings
+        if (h.match(/^#{1,6}\s/)) h = '<span class="syn-heading">' + h + '</span>';
+        // Bold
+        h = h.replace(/\*\*([^*]+)\*\*/g, '<span class="syn-bold">**$1**</span>');
+        // Links
+        h = h.replace(/(https?:\/\/[^\s<>"]+)/g, function(match) { var safe = match.replace(/[<>"'&]/g, function(c) { return {'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;'}[c]; }); return '<a href="' + safe + '" class="terminal-link syn-link" target="_blank" rel="noopener noreferrer">' + safe + '</a>'; });
+        // Stars (★)
+        h = h.replace(/(★\d+)/g, '<span class="syn-number">$1</span>');
+      } else if (lang === 'Plain Text') {
+        // Key: Value pairs
+        h = h.replace(/^(\s*)(\w[\w\s]*?)(:\s+)/, '$1<span class="syn-var">$2</span>$3');
+        // URLs
+        h = h.replace(/(https?:\/\/[^\s<>"]+)/g, function(match) { var safe = match.replace(/[<>"'&]/g, function(c) { return {'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;'}[c]; }); return '<a href="' + safe + '" class="terminal-link syn-link" target="_blank" rel="noopener noreferrer">' + safe + '</a>'; });
+        // Quoted text
+        h = h.replace(/(&#39;[^&#]*&#39;|&quot;[^&]*&quot;)/g, '<span class="syn-string">$1</span>');
+      }
+
+      return h;
+    }
+
+    function cmdHead(args) {
+      if (!args.length) { addLine('head: missing operand'); return; }
+      const path = resolvePath(args[args.length-1]);
+      const f = filesystem[path];
+      if (!f || f.type !== 'file') { addLine('head: cannot open \'' + args[args.length-1] + '\''); return; }
+      for (let i = 0; i < Math.min(5, f.content.length); i++) addHTML(linkify(f.content[i]));
+    }
+
+    function cmdTail(args) {
+      if (!args.length) { addLine('tail: missing operand'); return; }
+      if (args.includes('-f')) { cmdTailF(); return; }
+      const path = resolvePath(args[args.length-1]);
+      const f = filesystem[path];
+      if (!f || f.type !== 'file') { addLine('tail: cannot open \'' + args[args.length-1] + '\''); return; }
+      const start = Math.max(0, f.content.length - 5);
+      for (let i = start; i < f.content.length; i++) addHTML(linkify(f.content[i]));
+    }
+
+    function cmdStat(args) {
+      if (!args.length) { addLine('stat: missing operand'); return; }
+      const path = resolvePath(args[0]);
+      const f = filesystem[path] || filesystem[path + '/'];
+      if (!f) { addLine('stat: cannot stat \'' + args[0] + '\': No such file or directory'); return; }
+      addLine('  File: ' + args[0]);
+      addLine('  Size: ' + (f.type === 'dir' ? '4096' : '1337') + '\tBlocks: 8\tIO Block: 4096\t' + f.type);
+      addLine('Access: ' + (f.type === 'dir' ? '(0755/drwxr-xr-x)' : '(0644/-rw-r--r--)') + '  Uid: (1000/bradypodion)  Gid: (1000/bradypodion)');
+      addLine('Modify: 2026-03-20 19:76:00.000000000 +0100');
+    }
+
+    function cmdFind() {
+      addLine('.');
+      for (const key in filesystem) {
+        if (key.startsWith('/home/bradypodion')) addLine('.' + key.slice('/home/bradypodion'.length));
+      }
+    }
+
+    function cmdGrep(args) {
+      if (args.length < 2) { addLine('Usage: grep <pattern> <file>'); return; }
+      const pat = args[0].toLowerCase();
+      const path = resolvePath(args[1]);
+      const f = filesystem[path];
+      if (!f || f.type !== 'file') { addLine('grep: ' + args[1] + ': No such file'); return; }
+      for (const line of f.content) {
+        if (line.toLowerCase().includes(pat)) {
+          addHTML(escapeHtml(line).replace(new RegExp('(' + escapeRegex(escapeHtml(pat)) + ')', 'gi'), '<span class="text-accent">$1</span>'));
+        }
+      }
+    }
+
+    function cmdWc(args) {
+      if (!args.length) { addLine('wc: missing operand'); return; }
+      const path = resolvePath(args[0]);
+      const f = filesystem[path];
+      if (!f || f.type !== 'file') { addLine('wc: ' + args[0] + ': No such file'); return; }
+      const lines = f.content.length;
+      const words = f.content.join(' ').split(/\s+/).filter(w=>w).length;
+      const chars = f.content.join('\n').length;
+      addLine(' ' + lines + '  ' + words + ' ' + chars + ' ' + args[0]);
+    }
+
+    function cmdEcho(args) { addLine(args.join(' ')); }
+
+    function cmdWhich(args) {
+      if (!args.length) { addLine('which: missing argument'); return; }
+      const bins = ['ls','cd','pwd','cat','head','tail','grep','find','echo','man','ps','gotop','ping','ssh','vim','sh','bash','date','cal','clear','whoami','uname','env','df','du','ifconfig','netstat','free','uptime','wc','sort','stat','file','which','history','id','hostname','mail','hexdump','crontab','traceroute','docker'];
+      addLine(bins.includes(args[0]) ? '/usr/bin/' + args[0] : args[0] + ' not found');
+    }
+
+    function cmdFile(args) {
+      if (!args.length) { addLine('file: missing argument'); return; }
+      const path = resolvePath(args[0]);
+      const f = filesystem[path] || filesystem[path + '/'];
+      if (!f) { addLine(args[0] + ': cannot open (No such file or directory)'); return; }
+      if (f.type === 'dir') addLine(args[0] + ': directory');
+      else if (args[0].endsWith('.sh')) addLine(args[0] + ': Bourne-Again shell script, ASCII text executable');
+      else if (args[0].endsWith('.py')) addLine(args[0] + ': Python script, ASCII text executable');
+      else if (args[0].endsWith('.md')) addLine(args[0] + ': UTF-8 Unicode text');
+      else addLine(args[0] + ': ASCII text');
+    }
+
+    function cmdDf() {
+      addLine('Filesystem     1K-blocks    Used Available Use% Mounted on');
+      addLine('/dev/dm-0         1048576  198632    849944   19% /');
+      addLine('none              1,0M     0         1,0M     0%  /run/credentials/systemd-journald.service');
+      addLine('tmpfs             512000   14554     510024   2%  /dev/shm');
+      addLine('tmpfs             310000   1000      310000   1%  /run/user/1000');
+      addLine('none              1000     0         1000     0%  /run/credentials/systemd-cryptsetup@luks\x2de7a06f24\x2d132f\x2d4c8c\x2dbad2\x2d2c59c6eba254.service');
+      addLine('zram0             256000   14680     243655   5%  /swap');
+    }
+
+    function cmdDu() {
+      addLine('4.0K\t./about.txt');
+      addLine('8.0K\t./skills.sh');
+      addLine('4.0K\t./scan.sh');
+      addLine('4.0K\t./infra_probe.py');
+      addLine('4.0K\t./.bashrc');
+      addLine('4.0K\t./.ssh');
+      addLine('48K\t./projects');
+    }
+
+    function cmdPs() {
+      addLine('  PID TTY          TIME CMD');
+      addLine(' 1976 tty0     00:00:00 bash');
+      addLine(' 4822 tty0     00:00:01 scraping-pipeline');
+      addLine(' 4823 tty0     00:00:00 tg-notify');
+      addLine(' 4824 tty0     00:00:02 sys-rtl-monitor');
+      addLine(' 4825 tty0     00:00:01 eBPF-Network-filter');
+      addLine(' 4826 tty0     00:00:00 sshd');
+      addLine(' 4827 tty0     00:00:00 cron');
+      addLine(' 4828 tty0     00:00:00 ps');
+    }
+
+    async function cmdGoTop() {
+      addLine('gotop v7.0.0 — Press q to quit (simulated)');
+      addLine('CPU%   MEM%   PID   USER     COMMAND');
+
+      const processes = [
+        {pid:1234,user:'root',cmd:'python api.py'},
+        {pid:2231,user:'kafka',cmd:'kafka-server'},
+        {pid:3312,user:'postgres',cmd:'postgres'},
+        {pid:4411,user:'worker',cmd:'go-worker'},
+        {pid:5512,user:'node',cmd:'frontend.js'}
+      ];
+
+      for (let t = 0; t < 12; t++) {
+        processes.forEach(p => {
+          const cpu = (Math.random()*25).toFixed(1).padStart(4);
+          const mem = (Math.random()*8).toFixed(1).padStart(4);
+          addHTML(`${cpu}%   ${mem}%   ${p.pid}   ${p.user.padEnd(7)} ${p.cmd}`);
+        });
+        addLine('');
+        await sleep(300);
+        scrollToBottom();
+      }
+
+      addLine('--- simulation ended ---', 'text-dim');
+    }
+
+    function cmdSystemctl(args) {
+
+      const services = {
+        'api.service':        'Backend API Service',
+        'kafka.service':      'Kafka Broker',
+        'postgres.service':   'PostgreSQL Database',
+        'redis.service':      'Redis Cache',
+        'nginx.service':      'Nginx HTTP Server',
+        'docker.service':     'Docker Daemon',
+      };
+
+      // default → list units
+      if (!args.length || args[0] === 'list-units') {
+        addLine('UNIT                       LOAD   ACTIVE SUB     DESCRIPTION');
+        for (const [name, desc] of Object.entries(services)) {
+          addHTML(name.padEnd(27) + 'loaded active running ' + desc);
+        }
+        addLine('');
+        addLine(Object.keys(services).length + ' loaded units listed.');
+        return;
+      }
+
+      // status
+      if (args[0] === 'status' && args[1]) {
+        const svc = args[1];
+        if (!services[svc]) {
+          addLine('Unit ' + svc + ' could not be found.');
+          return;
+        }
+
+        addHTML('● ' + svc + ' - ' + services[svc]);
+        addHTML('   Loaded: loaded (/etc/systemd/system/' + svc + '; enabled)');
+        addHTML('   Active: <span class="text-accent">active (running)</span> since ' + new Date().toISOString());
+        addHTML(' Main PID: ' + (Math.floor(Math.random() * 4000) + 1000));
+        addLine('');
+        return;
+      }
+
+      // start
+      if (args[0] === 'start' && args[1]) {
+        addLine('Starting ' + args[1] + '...');
+        addLine(args[1] + ' started.');
+        return;
+      }
+
+      // stop
+      if (args[0] === 'stop' && args[1]) {
+        addLine('Stopping ' + args[1] + '...');
+        addLine(args[1] + ' stopped.');
+        return;
+      }
+
+      // restart
+      if (args[0] === 'restart' && args[1]) {
+        addLine('Restarting ' + args[1] + '...');
+        addLine(args[1] + ' restarted.');
+        return;
+      }
+
+      // failed
+      if (args[0] === 'list-units' && args.includes('--failed')) {
+        addLine('UNIT                       LOAD   ACTIVE SUB     DESCRIPTION');
+        addHTML('<span style="color:#ff4444">worker.service           loaded failed failed Background worker</span>');
+        addLine('');
+        addLine('1 loaded units listed.');
+        return;
+      }
+
+      // fallback
+      addLine('systemctl: unknown command "' + args.join(' ') + '"');
+      addLine('Try: systemctl list-units, systemctl status <svc>, start/stop/restart');
+    }
+    async function cmdKafka(args) {
+      if (!args.length) {
+        addLine('kafka: missing command');
+        addLine('Try: kafka [consume|topics|describe]');
+        return;
+      }
+
+      const cmd = args[0];
+
+      if (cmd === 'consume') {
+        const topic = args[1] || 'data-topic';
+        await cmdKafkaAction(topic);
+        return;
+      }
+
+      if (cmd === 'topics') {
+        addLine('Available topics:');
+        addHTML('<span class="text-accent">data-topic</span>');
+        addHTML('<span class="text-accent">system-data</span>');
+        addHTML('<span class="text-accent">metrics</span>');
+        addLine('');
+        return;
+      }
+
+      if (cmd === 'describe') {
+        const topic = args[1] || 'data-topic';
+        addLine('Topic: ' + topic);
+        addLine('Partitions: 3');
+        addLine('Replication factor: 1');
+        addLine('Message retention: 604800000');
+        addLine('');
+        return;
+      }
+
+      addLine('kafka: unknown command "' + args.join(' ') + '"');
+    }
+    async function cmdKafkaAction(topic = 'data-topic') {
+      addLine(`Consuming messages from topic: ${topic}`);
+      addLine('(Press Ctrl+C to stop...)');
+      await sleep(0.5)
+      addLine('(Press Ctrl+C to stop...)');
+      await sleep(0.5)
+      addLine('');
+
+      const messages = [
+          () => ({
+            type: 'metric',
+            host: 'node-' + (Math.floor(Math.random() * 5) + 1),
+            cpu: (Math.random() * 100).toFixed(2),
+            memory: (Math.random() * 100).toFixed(2)
+          }),
+          () => ({
+            type: 'request',
+            service: 'api',
+            path: ['/login','/checkout','/search'][Math.floor(Math.random()*3)],
+            status: [200, 200, 200, 500, 404][Math.floor(Math.random()*5)],
+            latency_ms: Math.floor(Math.random() * 500)
+          }),
+          () => ({
+            type: 'event',
+            user_id: Math.floor(Math.random() * 10000),
+            action: ['click','view','purchase'][Math.floor(Math.random()*3)],
+            item_id: Math.floor(Math.random() * 500)
+          }),
+          () => ({
+            type: 'system',
+            disk_io: Math.floor(Math.random() * 1000),
+            net_in: Math.floor(Math.random() * 10000),
+            net_out: Math.floor(Math.random() * 10000)
+          })
+        ];
+
+      for (let i = 0; i < 15; i++) {
+        const payload = messages[Math.floor(Math.random() * messages.length)]();
+        const now = new Date().toISOString();
+
+        const partition = Math.floor(Math.random() * 3);
+        const offset = Math.floor(Math.random() * 10000);
+
+        addHTML(
+          now +
+          ' [partition=' + partition + ' offset=' + offset + '] ' +
+          JSON.stringify(payload)
+        );
+
+        await sleep(150 + Math.random() * 250);
+        scrollToBottom();
+      }
+
+      addLine('');
+      addLine(`--- 15 messages consumed from ${topic} ---`, 'text-dim');
+    }
+
+    function cmdPing(args) {
+      if (!args.length) { addLine('ping: missing host operand'); return; }
+      const host = args[0];
+      if (host === 'github.com') {
+        addLine('PING github.com (140.82.121.3): 56 data bytes');
+        for (let i = 0; i < 4; i++) addLine('64 bytes from 140.82.121.3: icmp_seq=' + i + ' ttl=56 time=' + (Math.random()*20+5).toFixed(1) + ' ms');
+        addLine('--- github.com ping statistics ---');
+        addLine('4 packets transmitted, 4 received, 0% packet loss');
+        addLine('');
+      } else {
+        addLine('PING ' + host + ' (93.184.216.34): 56 data bytes');
+        for (let i = 0; i < 4; i++) addLine('64 bytes from 93.184.216.34: icmp_seq=' + i + ' ttl=56 time=' + (Math.random()*30+10).toFixed(1) + ' ms');
+        addLine('--- ' + host + ' ping statistics ---');
+        addLine('4 packets transmitted, 4 received, 0% packet loss');
+      }
+    }
+
+    function cmdIfconfig() {
+      addLine('lo0: flags=8049<UP,LOOPBACK,RUNNING,MULTICAST> mtu 32768');
+      addLine('        inet 127.0.0.1  netmask 0xff000000');
+      addLine('');
+      addLine('ne0: flags=8843<UP,BROADCAST,RUNNING,SIMPLEX,MULTICAST> mtu 1500');
+      addLine('        inet 10.0.0.1  netmask 0xffffff00  broadcast 10.0.0.255');
+      addLine('        ether 00:DE:AD:BE:EF:76');
+      addLine('        RX packets:197619  TX packets:197600');
+      addLine('        RX bytes:477000000 (477 MB)  TX bytes:249000000 (249 MB)');
+    }
+
+    function cmdVim(args) {
+      if (!args.length) { addLine('vim: missing filename'); return; }
+      const path = resolvePath(args[0]);
+      const f = filesystem[path];
+      if (!f || f.type !== 'file') { addLine('vim: ' + args[0] + ': No such file'); return; }
+
+      addLine('');
+      addLine('  VIM - Vi IMproved 9.0          ' + args[0], 'text-bright');
+      addLine('');
+
+      f.content.forEach((line, idx) => {
+        addHTML((idx + 1).toString().padStart(4) + ' ' + linkify(line));
+      });
+
+      addLine('');
+      addLine('  -- INSERT MODE --', 'text-dim');
+      addLine('  :w to save, :q to quit, :wq to save & quit', 'text-dim');
+      addLine('');
+    }
+
+    async function cmdScanSh() {
+      const visitorIP = await getVisitorIP();
+      const os = detectOS();
+      const browser = detectBrowser();
+      const lang = navigator.language || 'en-US';
+      const scr = window.screen.width + 'x' + window.screen.height;
+      const cores = navigator.hardwareConcurrency || '?';
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Unknown';
+      const mobile = /Mobi|Android|iPhone|iPad/.test(navigator.userAgent);
+      const connection = navigator.connection ? navigator.connection.effectiveType : 'unknown';
+
+      addLine('incoming connection detected...', 'text-bright');
+      await sleep(200);
+      addLine('');
+      addLine('scanning visitor...', 'text-dim');
+      await sleep(300);
+      addLine('');
+      addLine(' ┌─────────────────────────────────────────────┐', 'text-accent');
+      addLine(' │               VISITOR DATA                  │', 'text-accent');
+      addLine(' └─────────────────────────────────────────────┘', 'text-accent');
+      addLine('');
+      addHTML('  <span class="text-accent">IP:</span>         ' + escapeHtml(visitorIP));
+      await sleep(60);
+      addHTML('  <span class="text-accent">OS:</span>         ' + escapeHtml(os));
+      await sleep(60);
+      addHTML('  <span class="text-accent">Browser:</span>    ' + escapeHtml(browser));
+      await sleep(60);
+      addHTML('  <span class="text-accent">Screen:</span>     ' + escapeHtml(scr));
+      await sleep(60);
+      addHTML('  <span class="text-accent">Cores:</span>      ' + cores);
+      await sleep(60);
+      addHTML('  <span class="text-accent">Language:</span>   ' + escapeHtml(lang));
+      await sleep(60);
+      addHTML('  <span class="text-accent">Timezone:</span>   ' + escapeHtml(tz));
+      await sleep(60);
+      addHTML('  <span class="text-accent">Device:</span>     ' + (mobile ? 'Mobile' : 'Desktop'));
+      await sleep(60);
+      addHTML('  <span class="text-accent">Connection:</span> ' + escapeHtml(connection));
+      addLine('');
+      await sleep(300);
+      addLine('visitor authenticated. access granted.', 'text-bright');
+      addLine('');
+      scrollToBottom();
+    }
+
+    function cmdSh(args) {
+      if (!args.length) { addLine('sh: missing script argument'); return; }
+      const path = resolvePath(args[0]);
+      const f = filesystem[path];
+      if (!f || f.type !== 'file') { addLine('sh: ' + args[0] + ': No such file'); return; }
+      if (path === '/home/bradypodion/scan.sh') { cmdScanSh(); return; }
+      if (path === '/home/bradypodion/infra_probe.py') { cmdInfraProbe(); return; }
+      for (const line of f.content) {
+        const m = line.match(/echo\s+"(.*)"/);
+        if (m) addLine(m[1]);
+      }
+    }
+
+
+    function cmdMail() {
+      addLine('');
+      addLine(' No new mail.', 'text-dim');
+      addLine(' To contact bradypodion:', 'text-dim');
+      addLine('');
+      addHTML('  <span class="text-accent">GitHub</span>   <a href="https://github.com/bradypodion4" class="terminal-link" target="_blank" rel="noopener noreferrer">https://github.com/bradypodion4</a>');
+      addHTML('  <span class="text-accent">Telegram</span>        <a href="https://t.me/Pumilum" class="terminal-link" target="_blank" rel="noopener noreferrer">https://t.me/Pumilum</a>');
+      addLine('');
+    }
+
+    function cmdSsh(args) {
+      if (!args.length) { addLine('ssh: missing host'); return; }
+      if (args[0] === 'github' || args[0] === 'github.com') {
+        addHTML('Connecting to GitHub... <a href="https://github.com/bradypodion4" class="terminal-link" target="_blank" rel="noopener noreferrer">https://github.com/bradypodion4</a>');
+        window.open('https://github.com/bradypodion4', '_blank', 'noopener,noreferrer');
+      } else { addLine('ssh: connect to host ' + args[0] + ' port 22: Connection refused'); }
+    }
+
+    function cmdMan(args) {
+      if (!args.length) { addLine('What manual page do you want?'); addLine("Try 'man bradypodion' for the stuff you can do."); return; }
+      const topic = args[0].toLowerCase();
+      if (['bradypodion','cristiano','casetti'].includes(topic)) {
+        addLine('');
+        addHTML('<span class="text-bright">BRADYPODION(1)              User Commands              BRADYPODION(1)</span>');
+        addLine('');
+        addHTML('<span class="text-bright">NAME</span>');
+        addLine('       bradypodion - backend software engineer');
+        addLine('');
+        addHTML('<span class="text-bright">SYNOPSIS</span>');
+        addLine('       bradypodion [--hire] [--collaborate] [--consult]');
+        addLine('');
+        addHTML('<span class="text-bright">DESCRIPTION</span>');
+        addLine('       Cristiano Casetti aka Bradypodion is a Backend Software Engineer');
+        addLine('       born in 1995.');
+        addLine('       Write and break code since day one');
+        addLine('');
+        addHTML('<span class="text-bright">OPTIONS</span>');
+        addHTML('       <span class="text-accent">--hire</span>          Available for Linux - Backend Software Engineering - Architecture consulting');
+        addHTML('       <span class="text-accent">--collaborate</span>   Open to OSS project collaboration');
+        addHTML('       <span class="text-accent">--consult</span>       Backend Architecture & code review');
+        addHTML('       <span class="text-accent">--consult</span>       Linux Administration & code review');
+        addLine('');
+        addHTML('<span class="text-bright">EXPERTISE</span>');
+        addHTML('       Systems:   Scalable backend design, distributed architectures, event-driven systems');
+        addHTML('       Cloud:     AWS (EC2, S3, Lambda, CloudWatch, ECS, RDS and others...), Docker, Kubernetes, container orchestration, CI/CD pipelines, Terraform, monitoring & logging');
+        addHTML('       Linux:     networkd, systemd, journald, QEMU experimentation');
+        addHTML('       Code:      Python, Golang, Rust, Bash, Javascript');
+        addLine('');
+        addHTML('<span class="text-bright">PROJECTS</span>');
+        addHTML('       Scraping-Pipeline     ★—  High-throughput scraping pipeline with Kafka (Python, Docker)');
+        addHTML('       TG-Notify             ★—  Telegram bot for anomaly notifications (Python, Linux)');
+        addHTML('       Sys-RTL-Monitor       ★—  Resource & node monitoring for distributed systems (Python, Grafana, Prometheus)');
+        addHTML('       eBPF Network Filter   ★—  Kernel-level packet filtering (Rust, eBPF, Linux networking)');
+        addLine('');
+        addHTML('<span class="text-bright">SEE ALSO</span>');
+        addLine('       cat about.txt, sh skills.sh, ./scan.sh, ls projects/, mail, ssh github');
+        addLine('');
+        addHTML('<span class="text-dim">bradypodion.github.io        April 2026              </span>');
+        addLine('');
+      } else if (['ls','cd','pwd','cat','grep','find','ps','man','echo','date'].includes(topic)) {
+        addLine('');
+        addHTML('<span class="text-bright">' + topic.toUpperCase() + '(1)              User Commands              ' + topic.toUpperCase() + '(1)</span>');
+        addLine('');
+        addHTML('<span class="text-bright">NAME</span>');
+        addLine('       ' + topic + ' - standard Unix command');
+        addLine('');
+        addLine("       This is a simulated terminal. Try 'man bradypodion' for the stuff you can do.");
+        addLine('');
+      } else {
+        addLine('No manual entry for ' + topic);
+        addLine("Try 'man bradypodion' instead.");
+      }
+    }
+
+    function cmdUname(args) {
+      if (args.includes('-a')) addLine('Bradypodion Darwin System V Release 6.5.0-44 SMP x86_64 GNU/Linux');
+      else addLine('Bradypodion Darwin System V Release 6.5.0-44');
+    }
+
+    function cmdEnv() {
+      addLine('USER=bradypodion');
+      addLine('HOME=/home/bradypodion');
+      addLine('SHELL=/bin/bash');
+      addLine('TERM=xterm-256color');
+      addLine('HOSTNAME=pumilum');
+      addLine('LANG=en_IT.UTF-8');
+      addLine('EDITOR=vi');
+      addLine('REAL_NAME=Cristiano Casetti');
+      addLine('ALIAS=Bradypodion');
+      addLine('ROLE=Backend Engineer');
+      addLine('BORN=1995');
+      addLine('SKILLS=linux,aws,python,golang,rust,bash');
+    }
+
+    function cmdWhoami() {
+      addLine('');
+      addHTML(' <span class="text-bright">The Chameleon</span> <span class="text-dim">@Bradypodion4</span>');
+      addLine('');
+      addLine("{ 'name': 'Cristiano Casetti' }, #Backend #engineer,");
+      addLine('');
+      addHTML(' <span class="text-dim">📍 @::1</span>    <span class="text-dim">🔗 bradypodion4.github.io</span>');
+      addHTML(' <span class="text-dim">🎂 Born: November 4, 1995</span>');
+      addLine('');
+      addLine('');
+      addHTML(' <a href="https://t.me/Pumilum" class="terminal-link" target="_blank" rel="noopener noreferrer">https://t.me/Pumilum</a>');
+      addLine('');
+    }
+
+    function cmdId() {
+      addLine('uid=1976(bradypodion) gid=1976(bradypodion) groups=1976(bradypodion),backend,linux,aws cloud,terraform,python,golang,javascript');
+    }
+
+    function cmdHostname() { addLine('pumilum'); }
+
+    function cmdDate() {
+      const d = new Date();
+      const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      addLine(days[d.getDay()] + ' ' + months[d.getMonth()] + ' ' + d.getDate().toString().padStart(2,' ') + ' ' +
+              d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0') + ':' +
+              d.getSeconds().toString().padStart(2,'0') + ' CET ' + d.getFullYear());
+      addLine('Bradypodion active since: Nov 1 00:00:00 CET 1995 (' + (d.getFullYear() - 1995) + ' years of breaking things)');
+    }
+
+    function cmdCal() {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = d.getMonth();
+      const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      const header = months[month] + ' ' + year;
+      const pad = Math.floor((20 - header.length) / 2);
+      addLine(' '.repeat(Math.max(0, pad)) + header);
+      addLine('Su Mo Tu We Th Fr Sa');
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      let line = '   '.repeat(firstDay);
+      for (let day = 1; day <= daysInMonth; day++) {
+        line += day.toString().padStart(2, ' ') + ' ';
+        if ((firstDay + day) % 7 === 0) { addLine(line.trimEnd()); line = ''; }
+      }
+      if (line) addLine(line.trimEnd());
+    }
+
+    function cmdClear() { output.innerHTML = ''; }
+
+    function cmdHistory() {
+      for (let i = 0; i < commandHistory.length; i++) addLine('  ' + (i+1).toString().padStart(4) + '  ' + commandHistory[i]);
+    }
+
+    function cmdUptime() {
+      const d = new Date();
+      const years = d.getFullYear() - 1976;
+      const days = years * 365 + Math.floor(years/4);
+      const time = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0') + ':' + d.getSeconds().toString().padStart(2,'0');
+      addLine(' ' + time + ' up ' + days + ' days (' + years + ' years), 1 user, load average: 0.42, 0.37, 0.19');
+    }
+
+    function cmdFree() {
+      addLine('              total        used        free      shared  buff/cache   available');
+      addLine('Mem:       65011712    12345678    42665034     1024000     9977000    51642034');
+      addLine('Swap:        524288           0      524288');
+      addLine('Zram:       2097152      102400    1994752');
+    }
+
+    function cmdLscpu() {
+      addLine('Architecture:          x86_64');
+      addLine('CPU(s):                4');
+      addLine('Model name:            Bradypodion Core i9-1995');
+      addLine('Thread(s) per core:    2');
+      addLine('Core(s) per socket:    2');
+      addLine('CPU MHz:               3600.000');
+    }
+
+    /* ---- COMMANDS ---- */
+
+    function cmdNetstat() {
+      addLine('Active Internet connections (servers and established)');
+      addLine('Proto Recv-Q Send-Q Local Address     Foreign Address   State');
+      addHTML('tcp   0      0      0.0.0.0:22        0.0.0.0:*         <span class="text-accent">LISTEN</span>');
+      addHTML('tcp   0      0      0.0.0.0:80        0.0.0.0:*         <span class="text-accent">LISTEN</span>');
+      addHTML('tcp   0      0      127.0.0.1:8000    127.0.0.1:53422   ESTABLISHED');
+      addHTML('tcp   0      0      10.0.0.5:9092     10.0.0.8:51234    ESTABLISHED'); // Kafka vibes
+      addLine('');
+    }
+
+    function cmdCrontab(args) {
+      if (!args.length || args[0] !== '-l') { addLine('usage: crontab [-l]'); return; }
+
+      addLine('# system crontab — last updated');
+      addLine('# m  h  dom mon dow   command');
+      addLine('');
+
+      addHTML('<span class="text-dim">*/5</span>  *   *   *   *   /usr/bin/metrics-collector');
+      addHTML('<span class="text-dim">0</span>    *   *   *   *   /usr/bin/flush-logs');
+      addHTML('<span class="text-dim">0</span>    2   *   *   *   /usr/bin/backup-db');
+      addHTML('<span class="text-dim">*/10</span> *   *   *   *   /usr/bin/check-health');
+      addHTML('<span class="text-dim">0</span>    4   *   *   0   /usr/bin/system-update');
+      addLine('');
+    }
+
+    async function cmdTailF() {
+      addLine('==> /var/log/system.log <==', 'text-dim');
+      addLine('');
+
+      const events = [
+        '[INFO] service started: api',
+        '[INFO] connected to database',
+        '[WARN] high latency detected: 240ms',
+        '[INFO] scaling worker: +1',
+        '[ERROR] timeout on upstream service',
+        '[INFO] retry successful',
+        '[INFO] system stabilized'
+      ];
+
+      for (let i = 0; i < 12; i++) {
+        const e = events[Math.floor(Math.random() * events.length)];
+        addLine(new Date().toISOString() + ' ' + e);
+        await sleep(150 + Math.random() * 200);
+        scrollToBottom();
+      }
+
+      addLine('');
+      addLine('--- stream ended ---', 'text-dim');
+    }
+
+
+    function cmdHexdump(args) {
+      if (!args.length) { addLine('hexdump: missing operand'); return; }
+      const path = resolvePath(args[0]);
+      const f = filesystem[path];
+      if (!f || f.type !== 'file') { addLine('hexdump: ' + args[0] + ': No such file'); return; }
+      const text = f.content.join('\n');
+      const maxBytes = Math.min(text.length, 160);
+      for (let i = 0; i < maxBytes; i += 16) {
+        let hex = '';
+        let ascii = '';
+        for (let j = 0; j < 16; j++) {
+          if (i + j < maxBytes) {
+            const code = text.charCodeAt(i + j);
+            hex += code.toString(16).padStart(2, '0') + ' ';
+            ascii += (code >= 32 && code <= 126) ? text[i + j] : '.';
+          } else {
+            hex += '   ';
+            ascii += ' ';
+          }
+        }
+        addHTML('<span class="text-dim">' + i.toString(16).padStart(8, '0') + '</span>  ' +
+          escapeHtml(hex) + ' <span class="text-accent">|' + escapeHtml(ascii) + '|</span>');
+      }
+      addHTML('<span class="text-dim">' + maxBytes.toString(16).padStart(8, '0') + '</span>');
+    }
+
+    function cmdTraceroute(args) {
+      if (!args.length) { addLine('Usage: traceroute host'); return; }
+
+      const target = args[0];
+      addLine('traceroute to ' + target + ', 12 hops max');
+
+      const hops = [
+        '10.0.0.1',
+        '172.16.0.1',
+        '192.168.10.1',
+        'core-router.local',
+        'edge-node.aws',
+        'gateway.' + target
+      ];
+
+      hops.forEach((h, i) => {
+        const t = () => (Math.random() * 30 + 5).toFixed(2);
+        addHTML(` ${i+1}  ${h}  ${t()} ms  ${t()} ms  ${t()} ms`);
+      });
+
+      addLine('');
+    }
+
+    function cmdDocker(args) {
+      if (!args.length || args[0] === 'ps') {
+        const all = args.includes('-a');
+        addLine('CONTAINER ID   IMAGE               STATUS          PORTS');
+        const containers = [
+          {id: 'a1b2c3d4', image: 'fastapi-service', status: 'Up 2 hours', ports: '0.0.0.0:8000->8000'},
+          {id: 'b2c3d4e5', image: 'kafka', status: 'Up 5 hours', ports: '9092/tcp'},
+          {id: 'c3d4e5f6', image: 'postgres', status: 'Up 5 hours', ports: '5432/tcp'},
+          {id: 'd4e5f6g7', image: 'redis', status: 'Up 5 hours', ports: '6379/tcp'},
+          {id: 'e5f6g7h8', image: 'mongo', status: all ? 'Exited (0) 1 hour ago' : 'Up 3 hours', ports: '27017/tcp'},
+        ];
+        for (const c of containers) {
+          if (!all && c.status.startsWith('Exited')) continue;
+          addHTML(
+            c.id.padEnd(13) +
+            c.image.padEnd(18) +
+            c.status.padEnd(15) +
+            (c.ports ? '<span class="text-accent">' + escapeHtml(c.ports) + '</span>' : '')
+          );
+        }
+        addLine('');
+      } else if (args[0] === 'images') {
+        addLine('REPOSITORY          TAG       IMAGE ID       SIZE');
+        addHTML('fastapi-service     latest    a1b2c3d4       125MB');
+        addHTML('kafka               latest    b2c3d4e5       320MB');
+        addHTML('postgres            14-alpine c3d4e5f6       200MB');
+        addHTML('redis               7         d4e5f6g7       50MB');
+        addHTML('mongo               6.0       e5f6g7h8       150MB');
+        addLine('');
+      } else if (args[0] === 'stop' && args[1]) {
+        addLine('Stopping container ' + args[1] + '...');
+        addLine('Container ' + args[1] + ' stopped.');
+      } else if (args[0] === 'start' && args[1]) {
+        addLine('Starting container ' + args[1] + '...');
+        addLine('Container ' + args[1] + ' started.');
+      } else {
+        addLine('docker: unknown command "' + args.join(' ') + '"');
+        addLine('Try "docker ps", "docker images", "docker start/stop <id>"');
+      }
+    }
+
+
+    async function cmdRmRf() {
+      const glitchLines = [
+        'rm: removing /boot...',
+        'rm: removing /etc/passwd...',
+        'rm: removing /usr/bin...',
+        'rm: removing /home/bradypodion/loot...',
+        'rm: removing /dev/rum...',
+        'KERNEL PANIC - not syncing: Attempted to kill init!',
+      ];
+      for (const line of glitchLines) {
+        addHTML('<span style="color:#ff4444">' + escapeHtml(line) + '</span>');
+        await sleep(200);
+        scrollToBottom();
+      }
+      await sleep(500);
+
+      // Glitch effect
+      const glitchChars = '░▒▓█▄▀▐▌┤┘┴└├┬┌─┼╬║╗╝╚╔╠═╦╩╣▲▼◄►';
+      for (let g = 0; g < 5; g++) {
+        let glitch = '';
+        for (let i = 0; i < 60; i++) glitch += glitchChars[Math.floor(Math.random() * glitchChars.length)];
+        addHTML('<span style="color:#ff4444">' + escapeHtml(glitch) + '</span>');
+        await sleep(100);
+        scrollToBottom();
+      }
+
+      await sleep(800);
+      addLine('');
+      addLine('');
+      addLine('...just kidding.', 'text-bright');
+      await sleep(500);
+      addLine('You are a bad person. Btw, this branch is my branch and you can\'t remove it!', 'text-accent');
+      addLine('');
+      scrollToBottom();
+    }
+
+    async function cmdInfraProbe() {
+      addLine('[*] Probing infrastructure: localhost', 'text-dim');
+      await sleep(400);
+
+      addLine('[*] Checking network latency... OK', 'text-dim');
+      await sleep(300);
+
+      addLine('[*] Inspecting open ports... OK', 'text-dim');
+      await sleep(300);
+
+      addLine('[*] Analyzing service health... OK', 'text-dim');
+      await sleep(300);
+
+      addLine('[*] Evaluating system load...', 'text-dim');
+      await sleep(400);
+
+      const load = (Math.random() * 3).toFixed(2);
+      addLine(`[*] Current load: ${load}`, 'text-dim');
+
+      await sleep(300);
+
+      if (load > 2.0) {
+        addHTML('<span style="color:#ff4444">[!] High load detected: system under pressure</span>');
+      } else {
+        addLine('[*] System stable', 'text-dim');
+      }
+
+      await sleep(300);
+
+      addLine('[*] Analysis complete', 'text-dim');
+      addLine('[>] Tip: systems don’t break — they degrade under load.');
+      addLine('');
+
+      scrollToBottom();
+    }
+
+    function cmdExit() {
+      addLine('logout');
+      addLine('');
+      addLine('Connection to pumilum closed.', 'text-dim');
+      addLine("Visit https://github.com/bradypodion for more.", 'text-dim');
+      inputLine.style.display = 'none';
+    }
+
+    /* ============================================
+       INPUT HANDLING
+       ============================================ */
+    cmdInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const raw = cmdInput.value;
+        if (raw.trim()) { commandHistory.push(raw.trim()); if (commandHistory.length > 100) commandHistory.shift(); historyIndex = commandHistory.length; }
+        runCommand(raw);
+        cmdInput.value = '';
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (historyIndex > 0) { historyIndex--; cmdInput.value = commandHistory[historyIndex]; }
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (historyIndex < commandHistory.length - 1) { historyIndex++; cmdInput.value = commandHistory[historyIndex]; }
+        else { historyIndex = commandHistory.length; cmdInput.value = ''; }
+      } else if (e.key === 'Tab') {
+        e.preventDefault();
+        const val = cmdInput.value;
+        const parts = val.split(/\s+/);
+        if (parts.length <= 1) {
+          const cmds = ['help', 'docker', 'systemctl', 'kafkactl', 'ls','cd','pwd','cat','head','tail','mkdir','rmdir','rm','cp','mv','ln','chmod','chown','touch','stat','find','grep','wc','sort','echo','which','file','df','du','ps','gotop','ping','netstat','ifconfig','vim','sh','bash','mail','ssh','man','uname','env','whoami','date','cal','clear','history','id','hostname','uptime','free','lscpu','sudo','exit','hexdump','crontab','traceroute','docker'];
+          const matches = cmds.filter(c => c.startsWith(parts[0]));
+          if (matches.length === 1) cmdInput.value = matches[0] + ' ';
+          else if (matches.length > 1) { addHTML('<span class="prompt-echo">[bradypodion@pumilum ' + escapeHtml(getDisplayCwd()) + ']$ </span>' + escapeHtml(val)); addLine(matches.join('  ')); scrollToBottom(); }
+        } else {
+          const partial = parts[parts.length - 1];
+          let dirPath = cwd;
+          let key = dirPath;
+          if (!key.endsWith('/') && filesystem[key + '/']) key += '/';
+          const dir = filesystem[key] || filesystem[dirPath];
+          if (dir && dir.type === 'dir') {
+            const matches = dir.children.filter(c => c.startsWith(partial));
+            if (matches.length === 1) { parts[parts.length-1] = matches[0]; cmdInput.value = parts.join(' '); }
+            else if (matches.length > 1) { addHTML('<span class="prompt-echo">[bradypodion@pumilum ' + escapeHtml(getDisplayCwd()) + ']$ </span>' + escapeHtml(val)); addLine(matches.join('  ')); scrollToBottom(); }
+          }
+        }
+      } else if (e.key === 'l' && e.ctrlKey) { e.preventDefault(); output.innerHTML = ''; }
+    });
+
+    /* ============================================
+       COOKIE CONSENT
+       ============================================ */
+    const cookieOverlay = document.getElementById('cookie-overlay');
+    const cookieInput = document.getElementById('cookie-input');
+    const cookieManageOutput = document.getElementById('cookie-manage-output');
+
+    function showCookieNotice() {
+      if (localStorage.getItem('bradypodion-cookies')) {
+        runBootSequence();
+        return;
+      }
+      cookieOverlay.style.display = 'flex';
+      cookieInput.focus();
+    }
+
+    function addCookieLine(text, cls) {
+      const el = document.createElement('div');
+      el.className = 'terminal-line' + (cls ? ' ' + cls : '');
+      el.textContent = text;
+      cookieManageOutput.appendChild(el);
+    }
+
+    cookieInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const val = cookieInput.value.trim().toLowerCase();
+        cookieInput.value = '';
+
+        if (val === 'accept') {
+          localStorage.setItem('bradypodion-cookies', 'all');
+          cookieOverlay.style.display = 'none';
+          runBootSequence();
+        } else if (val === 'decline') {
+          localStorage.setItem('bradypodion-cookies', 'essential');
+          cookieOverlay.style.display = 'none';
+          runBootSequence();
+        } else if (val === 'manage') {
+          cookieManageOutput.innerHTML = '';
+          addCookieLine('');
+          addCookieLine(' Cookie details:', 'text-bright');
+          addCookieLine('');
+          addCookieLine('  essential    Session, preferences     [required]', 'text-accent');
+          addCookieLine('  analytics    Anonymous usage stats     [optional]');
+          addCookieLine('  tracking     Third-party tracking      [disabled]');
+          addCookieLine('');
+          addCookieLine(' This site stores minimal data. No third-party trackers.', 'text-dim');
+          addCookieLine(' Type "accept" or "decline" to continue.', 'text-dim');
+          addCookieLine('');
+        } else if (val) {
+          addCookieLine(' Unknown command: ' + val + '. Try: accept, decline, manage');
+        }
+      }
+    });
+
+    document.addEventListener('click', () => {
+      if (cookieOverlay.style.display === 'flex') cookieInput.focus();
+      else if (inputLine.style.display !== 'none') cmdInput.focus();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (cookieOverlay.style.display === 'flex') cookieInput.focus();
+      else if (inputLine.style.display !== 'none' && !e.ctrlKey && !e.metaKey) cmdInput.focus();
+    });
+
+    /* ============================================
+       KONAMI CODE — Matrix Rain Easter Egg
+       ============================================ */
+    const konamiSequence = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+    let konamiIndex = 0;
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === konamiSequence[konamiIndex]) {
+        konamiIndex++;
+        if (konamiIndex === konamiSequence.length) {
+          konamiIndex = 0;
+          startMatrixRain();
+        }
+      } else {
+        konamiIndex = 0;
+      }
+    });
+
+    function startMatrixRain() {
+      const canvas = document.createElement('canvas');
+      canvas.id = 'matrix-canvas';
+      canvas.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;pointer-events:none;';
+      document.body.appendChild(canvas);
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEF<>/{}[]|\\!@#$%^&*()BRADYPODION';
+      const fontSize = 14;
+      const columns = Math.floor(canvas.width / fontSize);
+      const drops = Array(columns).fill(1);
+
+      let frames = 0;
+      const maxFrames = 200;
+
+      function draw() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#00ff41';
+        ctx.font = fontSize + 'px JetBrains Mono, monospace';
+
+        for (let i = 0; i < drops.length; i++) {
+          const char = chars[Math.floor(Math.random() * chars.length)];
+          ctx.fillStyle = Math.random() > 0.98 ? '#ffffff' : '#00ff41';
+          ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+          drops[i]++;
+        }
+
+        frames++;
+        if (frames < maxFrames) {
+          requestAnimationFrame(draw);
+        } else {
+          canvas.style.transition = 'opacity 1s';
+          canvas.style.opacity = '0';
+          setTimeout(() => canvas.remove(), 1000);
+          addLine('');
+          addLine('You found the Matrix. Welcome to the rabbit hole.', 'text-accent');
+          addLine('');
+          scrollToBottom();
+        }
+      }
+      draw();
+    }
+
+    document.addEventListener('DOMContentLoaded', showCookieNotice);
+  </script>
+</body>
+</html>

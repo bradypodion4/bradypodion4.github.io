@@ -1,76 +1,199 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta property="og:title" content="Home Page" />
-    <meta property="og:description" content="An overview about me!" />
-    <!-- <meta property="og:image" content="" />
-    <meta property="og:url" content="" />
-    <link rel="icon" href="../static/favicon.ico" type="image/x-icon"> -->
-
-    <meta property="og:type" content="website" />
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-
-    <title>Bradypodion</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bradypodion4 — Backend Software Engineer & Linux Enthusiast</title>
+  <meta name="description" content="Cristiano Casetti - Bradypodion4. Backend engineer, Linux enthusiast. Building high-throughput distributed systems, designing data pipelines, and optimizing performance at scale.">
+  <meta name="keywords" content="Cristiano Casetti, backend engineering, system architecture, linux systems, data processing, performance optimization, distributed systems, high-throughput processing">
+  <meta property="og:title" content="Bradypodion4 — Backend Engineer & Linux Enthusiast">
+  <meta property="og:description" content="I build and break systems to understand how they behave, working with distributed architectures, data pipelines, and performance optimization.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://bradypodion4.github.io/">
+  <meta name="robots" content="index, follow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:'JetBrains Mono',monospace;max-width:700px;margin:40px auto;padding:0 20px;line-height:1.8;color:#c0c0c0;background:#0a0a0a;}
+    h1{font-size:24px;color:#00ff88;margin-bottom:4px;}
+    h2{font-size:16px;color:#00ff88;margin-top:28px;border-bottom:1px solid #1a3a1a;padding-bottom:4px;}
+    a{color:#00ff88;}
+    .subtitle{color:#666;font-size:14px;margin-bottom:24px;}
+    .tag{display:inline-block;padding:2px 8px;border:1px solid #1a3a1a;border-radius:3px;font-size:11px;color:#00aa55;margin:2px 4px 2px 0;}
+    ul{padding-left:20px;}
+    li{margin:4px 0;}
+    blockquote{border-left:2px solid #00ff88;margin:16px 0;padding:8px 16px;color:#888;font-style:italic;}
+    /* Boot splash */
+    #boot-splash{position:fixed;inset:0;z-index:10000;background:#0a0a0a;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;color:#00ff88;overflow:hidden;}
+    #boot-lines{width:90%;max-width:600px;font-size:13px;line-height:1.6;}
+    .mode-btn{background:transparent;padding:16px 28px;font-family:'JetBrains Mono',monospace;font-size:14px;cursor:pointer;border-radius:4px;transition:all 0.2s;}
+  </style>
 </head>
 <body>
-    <header>
-        <div class="nav-container">
-            <div class="hamburger" onclick="openModal()">&#9776;</div>
 
-            <nav class="navbar">
-                <ul class="nav-links">
-                    <li><a href="/index.html">Home</a></li>
-                    <li><a href="/contacts.html">Contact Me</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
-
-    <main>
-        <section class="hero">
-            <h1>Hello &#128075; & Welcome to my world of coding</h1>
-
-            <p>Python Developer | Linux Enthusiast</p>
-        </section>
-
-        <section class="about">
-            <h2>About Me</h2>
-            <p>
-            Let me introduce myself. My name is Cristiano, and I'm
-            a passionate Python developer and a strong advocate of Linux systems.
-            I specialize in backend development, automation, and optimizing workflows
-            for performance and efficiency.
-
-            As a **freelance developer**, I’m available for collaborations and projects.
-            If you're looking for a skilled Python developer to bring your ideas to life,
-            feel free to <a href="/contacts.html">get in touch</a>!
-            </p>
-        </section>
-
-        <section class="projects">
-            <h2>My Projects</h2>
-            <div class="project-card">
-                <a href="https://wallofdreams.org">WallOfDreams</a>
-                <p>A WebApp where users can buy a brick and write a wish anonymously. Every proceed is donated to research.</p>
-            </div>
-        </section>
-    </main>
-
-    <div id="hamburgerModal" class="modal">
-        <div class="modal-content">
-            <button type="button" class="hamburger-close-btn" onclick="closeModal()">×</button>
-            <ul class="nav-links">
-                <li><a href="/index.html">Home</a></li>
-                <li><a href="/contacts.html">Contact Me</a></li>
-            </ul>
-        </div>
+  <!-- BOOT SPLASH: humans see this, then get redirected -->
+  <div id="boot-splash">
+    <div id="boot-lines"></div>
+    <div id="mode-chooser" style="display:none;text-align:center;margin-top:32px;">
+      <div style="color:#00ff88;font-size:14px;margin-bottom:20px;">Select interface mode:</div>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+        <button id="btn-terminal" class="mode-btn" style="border:1px solid #00ff88;color:#00ff88;">&gt;_ Terminal</button>
+        <button id="btn-classic" class="mode-btn" style="border:1px solid #555;color:#888;">&#9638; Classic</button>
+      </div>
     </div>
+  </div>
 
-    <footer>
-        &copy; Casetti Cristiano Carlo | P. IVA 17221481009
-    </footer>
+  <script>
+  (function() {
+    var splash = document.getElementById('boot-splash');
+    var lines = document.getElementById('boot-lines');
+    var chooser = document.getElementById('mode-chooser');
+    var isMobile = /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent) || window.innerWidth < 768;
+
+    // Desktop: skip boot on repeat visits. Mobile: always show chooser.
+    var saved = localStorage.getItem('bradypodion-ui-mode');
+    if (!isMobile) {
+      if (saved === 'terminal') { window.location.replace('terminal.html'); return; }
+      if (saved === 'classic') { window.location.replace('old-site/index.html'); return; }
+    }
+
+    var msgs = [
+      ['BIOS Firmware 1.40.0 -- Bradypodion4 Inc.', 0],
+      ['Running memtest... 16384M OK', 150],
+      ['Detecting hardware... CPU: x86_64 [OK]', 200],
+      ['SSD: /dev/sda1 -- 8.4GB [OK]', 120],
+      ['Initializing kernel... bradypodion4 6.5.0-44', 300],
+      ['Mounting filesystems... ext4 [OK]', 150],
+      ['Starting network stack... wlp0s20f3: DHCP [OK]', 200],
+      ['Bringing up services...', 100],
+      ['  - sshd [OK]', 80],
+      ['  - container runtime [OK]', 80],
+      ['  - data pipelines [OK]', 80],
+      ['  - api services [OK]', 80],
+      ['', 50],
+      ['     +--------------------------------------+', 0],
+      ['     |   SYSTEM ANALYSIS MODE     v4.2.0    |', 50],
+      ['     |  "Push it. Break it. Understand it." |', 50],
+      ['     |  "Built for scale. Tuned for load."  |', 50],
+      ['     +--------------------------------------+', 0],
+      ['', 100],
+    ];
+
+    var i = 0;
+    function boot() {
+      if (i >= msgs.length) {
+        if (isMobile) {
+          chooser.style.display = 'block';
+        } else {
+          setTimeout(function() {
+            localStorage.setItem('bradypodion-ui-mode', 'terminal');
+            window.location.replace('terminal.html');
+          }, 600);
+        }
+        return;
+      }
+      var el = document.createElement('div');
+      el.textContent = msgs[i][0];
+      el.style.opacity = '0';
+      el.style.transition = 'opacity 0.15s';
+      lines.appendChild(el);
+      requestAnimationFrame(function() { el.style.opacity = '1'; });
+      var delay = msgs[i][1];
+      i++;
+      setTimeout(boot, delay + 40);
+    }
+    boot();
+
+    document.getElementById('btn-terminal').addEventListener('click', function() {
+      localStorage.setItem('bradypodion-ui-mode', 'terminal');
+      window.location.replace('terminal.html');
+    });
+    document.getElementById('btn-classic').addEventListener('click', function() {
+      localStorage.setItem('bradypodion-ui-mode', 'classic');
+      window.location.replace('old-site/index.html');
+    });
+
+    var btnT = document.getElementById('btn-terminal');
+    var btnC = document.getElementById('btn-classic');
+    btnT.onmouseover = function(){btnT.style.background='#00ff88';btnT.style.color='#0a0a0a';};
+    btnT.onmouseout = function(){btnT.style.background='transparent';btnT.style.color='#00ff88';};
+    btnC.onmouseover = function(){btnC.style.background='#333';btnC.style.color='#fff';btnC.style.borderColor='#888';};
+    btnC.onmouseout = function(){btnC.style.background='transparent';btnC.style.color='#888';btnC.style.borderColor='#555';};
+  })();
+  </script>
+
+  <!-- ============================================================
+       REAL CONTENT — visible to crawlers and screen readers.
+       Humans see the boot splash above, then get redirected.
+       This is the TRUE description of the site — no cloaking.
+       ============================================================ -->
+
+  <h1>Bradypodion4</h1>
+  <p class="subtitle">Cristiano Casetti — Backend Enginerr & Linux Enthusiast</p>
+
+  <blockquote>"I build and break systems to understand how they behave, working with distributed architectures, data pipelines, and performance optimization."</blockquote>
+
+  <h2>About</h2>
+  <p>Interactive system exploring distributed architectures, data pipelines, and system behavior under load.</p>
+
+    <p>
+      <span class="tag">backend engineering</span>
+      <span class="tag">distributed systems</span>
+      <span class="tag">data pipelines</span>
+      <span class="tag">Linux infrastructure</span>
+      <span class="tag">performance tuning</span>
+      <span class="tag">high-throughput processing</span>
+    </p>
+
+  <h2>Engineering Focus</h2>
+  <ul>
+    <li><strong>Distributed Systems</strong> — How large-scale architectures behave under load: message ordering, fault tolerance, throughput optimization, and scaling bottlenecks.</li>
+    <li><strong>Data Pipelines</strong> — Processing, transforming, and moving data efficiently: stream vs batch, reliability, latency, monitoring, and failure handling.</li>
+    <li><strong>Linux Internals</strong> — Kernel, filesystem, and network stack deep dives: understanding scheduling, memory management, and I/O performance.</li>
+    <li><strong>Performance Engineering</strong> — Optimizing code and systems at scale: profiling, benchmarking, concurrency issues, and real-world latency analysis.</li>
+  </ul>
+
+
+  <h2>Philosophy</h2>
+  <p>This site exists because systems are often treated as black boxes. They aren’t. Every architecture has limits, every pipeline has bottlenecks, and understanding them is the only way to build reliable, scalable software.</p>
+  <blockquote>"If you don't understand the system, you can't control its behavior."</blockquote>
+
+  <h2>Interface</h2>
+  <p>This site is available in two modes:</p>
+  <ul>
+    <li><strong><a href="terminal.html">Terminal Mode</a></strong> — Interactive Unix-style shell. Navigate with commands: <code>ls</code>, <code>cd</code>, <code>cat</code>, <code>grep</code>. The full experience.</li>
+    <li><strong><a href="old-site/index.html">Classic Mode</a></strong> — Traditional web page layout for mobile or quick reading.</li>
+  </ul>
+
+  <h2>Contact</h2>
+  <ul>
+    <li>GitHub: <a href="https://github.com/Bradypodion4" rel="noopener noreferrer">github.com/Bradypodion4</a></li>
+    <li>Telegram: <a href="https://t.me/pumilum" rel="noopener noreferrer">@Pumilum</a></li>
+<!--    <li>Blog: <a href="https://bradypodion4.github.io/myrepo/" rel="noopener noreferrer">bradypodion4</a></li>-->
+  </ul>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Cristiano Casetti",
+    "alternateName": "Bradypodion4",
+    "jobTitle": "Backend Engineer & Linux Enthusiast",
+    "description": "Backend engineer. Designing distributed architectures, analyzing performance and data pipelines, and exploring the inner workings of Linux-based systems and infrastructure.",
+    "url": "https://bradypodion4.github.io/",
+    "sameAs": [
+      "https://t.me/pumilum"
+    ],
+    "knowsAbout": [
+    "Backend Engineering",
+    "Distributed Systems",
+    "Data Pipelines",
+    "Linux Systems",
+    "Performance Optimization",
+    "High-Throughput Processing"
+  ]
+  }
+  </script>
 </body>
 </html>

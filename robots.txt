@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /ai.html
+
+Sitemap: https://bradypodion4.github.io/sitemap.xml
