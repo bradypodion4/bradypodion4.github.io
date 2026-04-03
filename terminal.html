@@ -875,29 +875,59 @@
     }
 
     async function cmdGoTop() {
-      addLine('gotop v7.0.0 — Press q to quit (simulated)');
-      addLine('CPU%   MEM%   PID   USER     COMMAND');
+      addLine('gotop v7.0.0 — Press q to quit');
+      addLine('CPU%   MEM%   PID   USER       COMMAND');
 
       const processes = [
-        {pid:1234,user:'root',cmd:'python api.py'},
-        {pid:2231,user:'kafka',cmd:'kafka-server'},
-        {pid:3312,user:'postgres',cmd:'postgres'},
-        {pid:4411,user:'worker',cmd:'go-worker'},
-        {pid:5512,user:'node',cmd:'frontend.js'}
+        { pid: 1976, user: 'root', cmd: 'bash', cpu: 0, mem: 0 },
+        { pid: 4822, user: 'bradypodion', cmd: 'scraping-pipeline', cpu: 0, mem: 0 },
+        { pid: 4823, user: 'bradypodion', cmd: 'tg-notify', cpu: 0, mem: 0 },
+        { pid: 4824, user: 'bradypodion', cmd: 'sys-rtl-monitor', cpu: 0, mem: 0 },
+        { pid: 4825, user: 'bradypodion', cmd: 'eBPF-Network-filter', cpu: 0, mem: 0 },
+        { pid: 4826, user: 'root', cmd: 'sshd', cpu: 0, mem: 0 },
+        { pid: 4827, user: 'root', cmd: 'cron', cpu: 0, mem: 0 },
+        { pid: 4828, user: 'root', cmd: 'ps', cpu: 0, mem: 0 },
       ];
 
-      for (let t = 0; t < 12; t++) {
-        processes.forEach(p => {
-          const cpu = (Math.random()*25).toFixed(1).padStart(4);
-          const mem = (Math.random()*8).toFixed(1).padStart(4);
-          addHTML(`${cpu}%   ${mem}%   ${p.pid}   ${p.user.padEnd(7)} ${p.cmd}`);
-        });
-        addLine('');
-        await sleep(300);
-        scrollToBottom();
+      let running = true;
+
+      function randomStat(last) {
+        let delta = (Math.random() - 0.5) * 10;
+        return Math.max(0, Math.min(100, last + delta));
       }
 
-      addLine('--- simulation ended ---', 'text-dim');
+      function onKey(e) {
+        if (e.key.toLowerCase() === 'q') running = false;
+      }
+      window.addEventListener('keydown', onKey);
+
+      while (running) {
+        addLine('');
+        processes.forEach(p => {
+          p.cpu = randomStat(p.cpu);
+          p.mem = randomStat(p.mem);
+        });
+
+        const topProcs = [...processes].sort((a, b) => b.cpu - a.cpu);
+
+        topProcs.forEach(p => {
+          const cpuBar = '█'.repeat(Math.floor(p.cpu / 5)).padEnd(20, ' ');
+          const memBar = '█'.repeat(Math.floor(p.mem / 5)).padEnd(20, ' ');
+
+          const cpuText = `${p.cpu.toFixed(1).padStart(4)}% ${cpuBar}`;
+          const memText = `${p.mem.toFixed(1).padStart(4)}% ${memBar}`;
+
+          addHTML(
+            `${cpuText}   ${memText}   ${p.pid}   ${p.user.padEnd(9)} ${p.cmd}`
+          );
+        });
+
+        scrollToBottom();
+        await sleep(500);
+      }
+
+      window.removeEventListener('keydown', onKey);
+      addLine('--- gotop exited ---', 'text-dim');
     }
 
     function cmdSystemctl(args) {

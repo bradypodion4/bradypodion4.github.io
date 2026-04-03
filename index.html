@@ -49,13 +49,18 @@
     var splash = document.getElementById('boot-splash');
     var lines = document.getElementById('boot-lines');
     var chooser = document.getElementById('mode-chooser');
-    var isMobile = /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent) || window.innerWidth < 768;
+    // var isMobile = /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent) || window.innerWidth < 768;
 
     // Desktop: skip boot on repeat visits. Mobile: always show chooser.
     var saved = localStorage.getItem('bradypodion-ui-mode');
-    if (!isMobile) {
-      if (saved === 'terminal') { window.location.replace('terminal.html'); return; }
-      if (saved === 'classic') { window.location.replace('old-site/index.html'); return; }
+
+    if (saved) {
+      window.location.replace(
+        saved === 'terminal'
+          ? 'terminal.html'
+          : 'old-site/index.html'
+      );
+      return;
     }
 
     var msgs = [
@@ -83,16 +88,10 @@
     var i = 0;
     function boot() {
       if (i >= msgs.length) {
-        if (isMobile) {
-          chooser.style.display = 'block';
-        } else {
-          setTimeout(function() {
-            localStorage.setItem('bradypodion-ui-mode', 'terminal');
-            window.location.replace('terminal.html');
-          }, 600);
-        }
+        chooser.style.display = 'block';
         return;
       }
+
       var el = document.createElement('div');
       el.textContent = msgs[i][0];
       el.style.opacity = '0';
@@ -106,11 +105,11 @@
     boot();
 
     document.getElementById('btn-terminal').addEventListener('click', function() {
-      localStorage.setItem('bradypodion-ui-mode', 'terminal');
+      // localStorage.setItem('bradypodion-ui-mode', 'terminal');
       window.location.replace('terminal.html');
     });
     document.getElementById('btn-classic').addEventListener('click', function() {
-      localStorage.setItem('bradypodion-ui-mode', 'classic');
+      // localStorage.setItem('bradypodion-ui-mode', 'classic');
       window.location.replace('old-site/index.html');
     });
 
