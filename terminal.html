@@ -69,7 +69,7 @@
     const filesystem = {
       '/home/bradypodion': {
         type: 'dir',
-        children: ['about.txt', 'skills.sh', 'scan.sh', 'infra_probe.py', 'projects/', 'blog/', '.bashrc', '.ssh/', '.config/', '/var/log/']
+        children: ['about.txt', 'skills.sh', 'scan.sh', 'infra_probe.py', 'projects/', 'blog/', '.bashrc', '.ssh/', '.config/', '.aws/']
       },
       '/home/bradypodion/about.txt': {
         type: 'file',
@@ -199,9 +199,45 @@
           '[INFO] system stabilized'
         ]
       },
+      '/home/bradypodion/.aws/': {
+        type: 'dir',
+        children: ['config', 'credentials']
+      },
+      '/home/bradypodion/.aws/config': {
+        type: 'file',
+        content: [
+          '[default]',
+          'region = us-east-1',
+          'output = json',
+          '',
+          '[dev]',
+          'region = eu-west-1',
+          'output = table',
+          '',
+          '[prod]',
+          'region = eu-west-1',
+          'output = table',
+        ]
+      },
+      '/home/bradypodion/.aws/credentials': {
+        type: 'file',
+        content: [
+          '[default]',
+          'aws_access_key_id = AKIAEXAMPLE123456',
+          'aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY',
+          '',
+          '[dev]',
+          'aws_access_key_id = AKIAEXAMPLE654321',
+          'aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY2',
+          '',
+          '[prod]',
+          'aws_access_key_id = AKIAEXAMPLE654321',
+          'aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY2'
+        ]
+      },
       '/home/bradypodion/.config/': {
         type: 'dir',
-        children: ['docker/', 'systemd/', 'aws/']
+        children: ['docker/']
       },
       '/home/bradypodion/.config/docker/': {
         type: 'dir',
@@ -476,7 +512,7 @@
         free: cmdFree, lscpu: cmdLscpu, exit: cmdExit,
         hexdump: cmdHexdump, crontab: cmdCrontab,
         traceroute: cmdTraceroute, docker: cmdDocker, systemctl:cmdSystemctl,
-        kafka: cmdKafka
+        kafkactl: cmdKafka
       };
 
       if (trimmed.match(/^(sudo\s+)?rm\s+.*-rf|^(sudo\s+)?rm\s+-rf/)) { cmdRmRf(); }
@@ -970,7 +1006,7 @@
         return;
       }
 
-      addLine('kafka: unknown command "' + args.join(' ') + '"');
+      addLine('kafkactl: unknown command "' + args.join(' ') + '"');
     }
     async function cmdKafkaAction(topic = 'data-topic') {
       addLine(`Consuming messages from topic: ${topic}`);
