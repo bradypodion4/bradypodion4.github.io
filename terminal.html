@@ -262,6 +262,10 @@
           'eBPF-Network-filter/'
         ]
       },
+      '/home/bradypodion/projects/scraping-pipeline/': {
+        type: 'dir',
+        children: ['README.md']
+      },
       '/home/bradypodion/projects/scraping-pipeline/README.md': {
         type: 'file',
         content: [
@@ -272,6 +276,10 @@
           '',
           'Tech: Python, Kafka, Docker',
         ]
+      },
+      '/home/bradypodion/projects/tg-notify/': {
+        type: 'dir',
+        children: ['README.md']
       },
       '/home/bradypodion/projects/tg-notify/README.md': {
         type: 'file',
@@ -284,6 +292,10 @@
           'Tech: Python, Telegram API, Linux, RaspberryPi, system monitoring'
         ]
       },
+      '/home/bradypodion/projects/sys-rtl-monitor/': {
+        type: 'dir',
+        children: ['README.md']
+      },
       '/home/bradypodion/projects/sys-rtl-monitor/README.md': {
         type: 'file',
         content: [
@@ -295,7 +307,10 @@
           'Tech: Python, Linux, Grafana, Prometheus'
         ]
       },
-
+      '/home/bradypodion/projects/eBPF-Network-filter/': {
+        type: 'dir',
+        children: ['README.md']
+      },
       '/home/bradypodion/projects/eBPF-Network-filter/README.md': {
         type: 'file',
         content: [
@@ -510,8 +525,7 @@
         id: cmdId, hostname: cmdHostname, date: cmdDate, cal: cmdCal,
         clear: cmdClear, history: cmdHistory, uptime: cmdUptime,
         free: cmdFree, lscpu: cmdLscpu, exit: cmdExit,
-        hexdump: cmdHexdump, crontab: cmdCrontab,
-        traceroute: cmdTraceroute, docker: cmdDocker, systemctl:cmdSystemctl,
+        crontab: cmdCrontab, traceroute: cmdTraceroute, docker: cmdDocker, systemctl:cmdSystemctl,
         kafkactl: cmdKafka
       };
 
@@ -1300,7 +1314,7 @@
       addLine('');
       addHTML(' <span class="text-bright">The Chameleon</span> <span class="text-dim">@Bradypodion4</span>');
       addLine('');
-      addLine("{ 'name': 'Cristiano Casetti' }, #Backend #engineer,");
+      addLine("'Cristiano Casetti' - #Backend #engineer,");
       addLine('');
       addHTML(' <span class="text-dim">📍 @::1</span>    <span class="text-dim">🔗 bradypodion4.github.io</span>');
       addHTML(' <span class="text-dim">🎂 Born: November 4, 1995</span>');
@@ -1311,7 +1325,7 @@
     }
 
     function cmdId() {
-      addLine('uid=1976(bradypodion) gid=1976(bradypodion) groups=1976(bradypodion),backend,linux,aws cloud,terraform,python,golang,javascript');
+      addLine('uid=1995(bradypodion) gid=1995(bradypodion) groups=1995(bradypodion),backend,linux,aws cloud,terraform,python,golang,javascript');
     }
 
     function cmdHostname() { addLine('pumilum'); }
@@ -1353,7 +1367,7 @@
 
     function cmdUptime() {
       const d = new Date();
-      const years = d.getFullYear() - 1976;
+      const years = d.getFullYear() - 1995;
       const days = years * 365 + Math.floor(years/4);
       const time = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0') + ':' + d.getSeconds().toString().padStart(2,'0');
       addLine(' ' + time + ' up ' + days + ' days (' + years + ' years), 1 user, load average: 0.42, 0.37, 0.19');
@@ -1363,7 +1377,7 @@
       addLine('              total        used        free      shared  buff/cache   available');
       addLine('Mem:       65011712    12345678    42665034     1024000     9977000    51642034');
       addLine('Swap:        524288           0      524288');
-      addLine('Zram:       2097152      102400    1994752');
+      addLine('Zram:       2097152      102400     1994752');
     }
 
     function cmdLscpu() {
@@ -1427,32 +1441,6 @@
       addLine('--- stream ended ---', 'text-dim');
     }
 
-
-    function cmdHexdump(args) {
-      if (!args.length) { addLine('hexdump: missing operand'); return; }
-      const path = resolvePath(args[0]);
-      const f = filesystem[path];
-      if (!f || f.type !== 'file') { addLine('hexdump: ' + args[0] + ': No such file'); return; }
-      const text = f.content.join('\n');
-      const maxBytes = Math.min(text.length, 160);
-      for (let i = 0; i < maxBytes; i += 16) {
-        let hex = '';
-        let ascii = '';
-        for (let j = 0; j < 16; j++) {
-          if (i + j < maxBytes) {
-            const code = text.charCodeAt(i + j);
-            hex += code.toString(16).padStart(2, '0') + ' ';
-            ascii += (code >= 32 && code <= 126) ? text[i + j] : '.';
-          } else {
-            hex += '   ';
-            ascii += ' ';
-          }
-        }
-        addHTML('<span class="text-dim">' + i.toString(16).padStart(8, '0') + '</span>  ' +
-          escapeHtml(hex) + ' <span class="text-accent">|' + escapeHtml(ascii) + '|</span>');
-      }
-      addHTML('<span class="text-dim">' + maxBytes.toString(16).padStart(8, '0') + '</span>');
-    }
 
     function cmdTraceroute(args) {
       if (!args.length) { addLine('Usage: traceroute host'); return; }
@@ -1620,7 +1608,7 @@
         const val = cmdInput.value;
         const parts = val.split(/\s+/);
         if (parts.length <= 1) {
-          const cmds = ['help', 'docker', 'systemctl', 'kafkactl', 'ls','cd','pwd','cat','head','tail','mkdir','rmdir','rm','cp','mv','ln','chmod','chown','touch','stat','find','grep','wc','sort','echo','which','file','df','du','ps','gotop','ping','netstat','ifconfig','vim','sh','bash','mail','ssh','man','uname','env','whoami','date','cal','clear','history','id','hostname','uptime','free','lscpu','sudo','exit','hexdump','crontab','traceroute','docker'];
+          const cmds = ['help', 'docker', 'systemctl', 'kafkactl', 'ls','cd','pwd','cat','head','tail','mkdir','rmdir','rm','cp','mv','ln','chmod','chown','touch','stat','find','grep','wc','sort','echo','which','file','df','du','ps','gotop','ping','netstat','ifconfig','vim','sh','bash','mail','ssh','man','uname','env','whoami','date','cal','clear','history','id','hostname','uptime','free','lscpu','sudo','exit','crontab','traceroute','docker'];
           const matches = cmds.filter(c => c.startsWith(parts[0]));
           if (matches.length === 1) cmdInput.value = matches[0] + ' ';
           else if (matches.length > 1) { addHTML('<span class="prompt-echo">[bradypodion@pumilum ' + escapeHtml(getDisplayCwd()) + ']$ </span>' + escapeHtml(val)); addLine(matches.join('  ')); scrollToBottom(); }
